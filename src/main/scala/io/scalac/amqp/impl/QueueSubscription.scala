@@ -51,5 +51,10 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     }
   }
 
-  override def cancel() = channel.close()
+  override def cancel() = try {
+    channel.close()
+  } catch {
+    case exception: Exception =>
+      subscriber.onError(exception)
+  }
 }
