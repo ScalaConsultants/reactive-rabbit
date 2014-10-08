@@ -18,7 +18,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   override def handleCancel(consumerTag: String) = subscriber.onComplete()
 
   override def handleShutdownSignal(consumerTag: String, sig: ShutdownSignalException) = sig match {
-    case sig if sig.isInitiatedByApplication => subscriber.onError(sig)
+    case sig if !sig.isInitiatedByApplication => subscriber.onError(sig)
     case _ => // shutdown initiated by us
   }
 
