@@ -1,8 +1,11 @@
 package io.scalac.amqp
 
 import scala.concurrent.duration.Duration
+
 import akka.util.ByteString
+
 import com.google.common.net.MediaType
+
 import org.joda.time.DateTime
 
 
