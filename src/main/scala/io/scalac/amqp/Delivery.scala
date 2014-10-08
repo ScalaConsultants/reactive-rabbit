@@ -5,7 +5,7 @@ case class Delivery(/** Delivered message. */
                     message: Message,
 
                     /** Delivery tag. */
-                    deliveryTag: Long,
+                    deliveryTag: DeliveryTag,
 
                     /** The exchange used for the current operation. */
                     exchange: String,
