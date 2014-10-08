@@ -36,23 +36,27 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     getChannel.basicAck(envelope.getDeliveryTag, false)
   }
 
-  override def request(n: Long) = try {
-    require(n >= 0, "n < 0")
-
-    demand.addAndGet(n) match {
-      case demand if demand == n =>
-        if(demand > Int.MaxValue) {
-          channel.basicQos(Int.MaxValue)
-        } else {
-          channel.basicQos(demand.toInt)
+  override def request(n: Long) =
+    channel.isOpen match {
+      case true =>
+        require(n >= 0, "Rule 3.9: n < 0")
+        try {
+          demand.addAndGet(n) match {
+            case demand if demand == n =>
+              if (demand > Int.MaxValue) {
+                channel.basicQos(Int.MaxValue)
+              } else {
+                channel.basicQos(demand.toInt)
+              }
+              channel.basicConsume(queue, false, tag, this)
+            case _ => // demand increased
+          }
+        } catch {
+          case exception: Exception =>
+            subscriber.onError(exception)
         }
-        channel.basicConsume(queue, false, tag, this)
-      case _ => // demand increased
+      case _ => // do nothing
     }
-  } catch {
-    case exception: Exception =>
-      subscriber.onError(exception)
-  }
 
   override def cancel() = try {
     channel.close()
