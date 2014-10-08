@@ -36,7 +36,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     getChannel.basicAck(envelope.getDeliveryTag, false)
   }
 
-  override def request(n: Long) = {
+  override def request(n: Long) = try {
     require(n >= 0, "n < 0")
 
     demand.addAndGet(n) match {
@@ -49,6 +49,9 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
         channel.basicConsume(queue, false, tag, this)
       case _ => // demand increased
     }
+  } catch {
+    case exception: Exception =>
+      subscriber.onError(exception)
   }
 
   override def cancel() = try {
