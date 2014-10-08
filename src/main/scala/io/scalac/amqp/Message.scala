@@ -1,8 +1,9 @@
 package io.scalac.amqp
 
+import scala.concurrent.duration.Duration
 import akka.util.ByteString
 import com.google.common.net.MediaType
-import org.joda.time.{DateTime, Duration}
+import org.joda.time.DateTime
 
 
 case class Message(/** Message body. */
@@ -60,7 +61,7 @@ case class Message(/** Message body. */
 
                    /** Expiration time after which the message will be deleted.
                      * The value of the expiration field describes the TTL period in milliseconds. */
-                   expiration: Option[Duration] = None,
+                   expiration: Duration = Duration.Inf,
 
                    /** Message identifier as a string. If applications need to identify messages,
                      * it is recommended that they use this attribute instead of putting it into the message payload. */
