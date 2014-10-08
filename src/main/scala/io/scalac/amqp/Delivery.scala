@@ -11,7 +11,7 @@ case class Delivery(/** Delivered message. */
                     exchange: String,
 
                     /** The associated routing key. */
-                    routingKey: String,
+                    routingKey: RoutingKey,
 
                     /** This is a hint as to whether this message may have been delivered before
                       * (but not acknowledged). If the flag is not set, the message definitely has
