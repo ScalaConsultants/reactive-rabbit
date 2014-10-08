@@ -16,11 +16,10 @@ import org.joda.time.DateTime
 
 
 object Conversions {
-  def toDeliveryMode(deliveryMode: Integer) =
-    Option[Int](deliveryMode) match {
-      case Some(2) => Persistent
-      case _ => NonPersistent
-    }
+  def toDeliveryMode(deliveryMode: Integer) = deliveryMode match {
+    case mode: Integer if mode == 2 => Persistent
+    case _ => NonPersistent
+  }
 
   def toDuration(value: String) = Option(value) match {
     case Some(ttl) => Duration(ttl.toLong, TimeUnit.MILLISECONDS)
@@ -32,9 +31,9 @@ object Conversions {
       body = ByteString(body),
       contentType = Option(properties.getContentType).map(MediaType.parse),
       contentEncoding = Option(properties.getContentEncoding),
-      headers = properties.getHeaders.toMap.mapValues(_.toString),
+      headers = Option(properties.getHeaders).map(_.toMap.mapValues(_.toString)).getOrElse(Map()),
       mode = toDeliveryMode(properties.getDeliveryMode),
-      priority = Option(properties.getPriority),
+      priority = Option(properties.getPriority).map(Integer2int),
       correlationId = Option(properties.getCorrelationId),
       replyTo = Option(properties.getReplyTo),
       expiration = toDuration(properties.getExpiration),
