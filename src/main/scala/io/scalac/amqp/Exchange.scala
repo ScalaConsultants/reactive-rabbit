@@ -1,10 +1,10 @@
 package io.scalac.amqp
 
-
+/** Exchanges are AMQP entities where messages are sent.
+  * Exchanges take a message and route it into zero or more queues. */
 case class Exchange(name: String,
 
-                    /** Exchanges are AMQP entities where messages are sent. Exchanges take a message
-                      * and route it into zero or more queues. The routing algorithm used depends on
+                    /**  The routing algorithm used depends on
                       * the exchange type and rules called bindings. */
                     `type`: Type,
 
