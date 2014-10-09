@@ -1,7 +1,7 @@
 Reactive Streams: AMQP
 ====
 
-Experimental implementation of Reactive Streams for AMQP.
+Experimental implementation of [Reactive Streams](www.reactive-streams.org) Reactive Streams for AMQP.
 
 Example
 ----
