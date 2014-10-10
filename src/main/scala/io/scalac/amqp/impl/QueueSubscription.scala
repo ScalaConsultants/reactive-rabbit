@@ -22,6 +22,12 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     case _ => // shutdown initiated by us
   }
 
+  def prefetch(demand: Long): Unit = demand match {
+    case demand if demand < Int.MaxValue => channel.basicQos(demand.toInt, true)
+    case Long.MaxValue => channel.basicQos(0, true) // unlimited
+    case _ => channel.basicQos(Int.MaxValue, true)
+  }
+
   override def handleDelivery(consumerTag: String,
                               envelope: Envelope,
                               properties: AMQP.BasicProperties,
@@ -29,8 +35,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     val delivery = Conversions.toDelivery(envelope, properties, body)
     demand.decrementAndGet() match {
       case 0 => getChannel.basicCancel(tag)
-      case demand if demand > Int.MaxValue => getChannel.basicQos(Int.MaxValue)
-      case demand => getChannel.basicQos(demand.toInt)
+      case demand => prefetch(demand)
     }
     subscriber.onNext(delivery)
     getChannel.basicAck(envelope.getDeliveryTag, false)
@@ -43,11 +48,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
         try {
           demand.addAndGet(n) match {
             case demand if demand == n =>
-              if (demand > Int.MaxValue) {
-                channel.basicQos(Int.MaxValue)
-              } else {
-                channel.basicQos(demand.toInt)
-              }
+              prefetch(demand)
               channel.basicConsume(queue, false, tag, this)
             case _ => // demand increased
           }
