@@ -20,3 +20,7 @@ publisher.subscribe(new Subscriber[Delivery] {
   override def onNext(t: Delivery) = subscriber.onNext(t.message)
 })
 ```
+
+Caveats
+----
+ * `QueueSubscription` will cancel underyling consumer when demand goes to zero. This may cause queue with `autoDelete` flag to be removed by the broker. Solution to this problem is not ready yet.
