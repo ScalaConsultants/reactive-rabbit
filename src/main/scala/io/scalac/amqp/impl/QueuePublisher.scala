@@ -1,7 +1,5 @@
 package io.scalac.amqp.impl
 
-import java.io.IOException
-
 import com.rabbitmq.client.Connection
 
 import io.scalac.amqp.Delivery
