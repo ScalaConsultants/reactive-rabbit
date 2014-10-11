@@ -24,7 +24,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
   def prefetch(demand: Long): Unit = demand match {
     case demand if demand < Int.MaxValue => channel.basicQos(demand.toInt, true)
-    case Long.MaxValue => channel.basicQos(0, true) // unlimited
+    case Long.MaxValue => channel.basicQos(0, true) // 3.17: effectively unbounded
     case _ => channel.basicQos(Int.MaxValue, true)
   }
 
@@ -56,12 +56,13 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
           case exception: Exception =>
             subscriber.onError(exception)
         }
-      case _ => // do nothing
+      case _ => // 3.6: nop
     }
 
   override def cancel() = try {
     channel.close()
   } catch {
+    case _: AlreadyClosedException => // 3.7: nop
     case exception: Exception =>
       subscriber.onError(exception)
   }
