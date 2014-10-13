@@ -23,4 +23,4 @@ publisher.subscribe(new Subscriber[Delivery] {
 
 Caveats
 ----
- * `QueueSubscription` will cancel underyling consumer when demand goes to zero. This may cause queue with `autoDelete` flag to be removed by the broker. Solution to this problem is not ready yet.
+ * `QueueSubscription` will cancel underyling consumer when demand goes to zero. This will cause queue with `auto-delete` attribute to get deleted by the broker. Solution to this problem is not ready yet. Exclusive queues are not affected beucase their life cycle is bounded to connection.
