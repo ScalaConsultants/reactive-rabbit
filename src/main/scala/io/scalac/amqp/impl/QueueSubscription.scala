@@ -19,7 +19,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     subscriber.onComplete()
   } catch {
     case exception: Exception =>
-      subscriber.onError(new IllegalStateException("Rule 2.13", exception))
+      subscriber.onError(new IllegalStateException("Rule 2.13 violation", exception))
   }
 
   override def handleShutdownSignal(consumerTag: String, sig: ShutdownSignalException) = sig match {
