@@ -15,7 +15,12 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   val tag = UUID.randomUUID().toString
   val demand = new AtomicLong()
 
-  override def handleCancel(consumerTag: String) = subscriber.onComplete()
+  override def handleCancel(consumerTag: String) = try {
+    subscriber.onComplete()
+  } catch {
+    case exception: Exception =>
+      subscriber.onError(new IllegalStateException("Rule 2.13", exception))
+  }
 
   override def handleShutdownSignal(consumerTag: String, sig: ShutdownSignalException) = sig match {
     case sig if !sig.isInitiatedByApplication => subscriber.onError(sig)
