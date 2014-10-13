@@ -31,11 +31,10 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
     new QueuePublisher(connection, queue)
   }
 
-  // TODO(mkiedys): impl
-  override def createErrorStatePublisher(): Publisher[Delivery] = new Publisher[Delivery] {
-    override def subscribe(s: Subscriber[_ >: Delivery]): Unit = {
-      s.onError(new IllegalStateException("Unable to serve subscribers right now!"))
-    }
+  override def createErrorStatePublisher(): Publisher[Delivery] = {
+    val connection = factory.newConnection()
+    connection.close()
+    new QueuePublisher(connection, "foo")
   }
 
   override def createPublisher1MustProduceAStreamOfExactly1Element() = ()
