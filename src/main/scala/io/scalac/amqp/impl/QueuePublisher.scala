@@ -13,6 +13,6 @@ private[amqp] class QueuePublisher(connection: Connection, queue: String) extend
     val subscription = new QueueSubscription(channel, queue, subscriber)
     subscriber.onSubscribe(subscription)
   } catch {
-    case exception: Exception => subscriber.onError(exception)
+    case exception: Exception ⇒ subscriber.onError(exception)
   }
 }

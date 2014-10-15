@@ -18,13 +18,13 @@ import org.joda.time.DateTime
 object Conversions {
   def toMessage(properties: AMQP.BasicProperties, body: Array[Byte]): Message = {
     def toDeliveryMode(deliveryMode: Integer) = deliveryMode match {
-      case mode: Integer if mode == 2 => Persistent
-      case _ => NonPersistent
+      case mode: Integer if mode == 2 ⇒> Persistent
+      case _ ⇒ NonPersistent
     }
 
     def toExpiration(value: String) = Option(value) match {
-      case Some(ttl) => Duration(ttl.toLong, TimeUnit.MILLISECONDS)
-      case _ => Duration.Inf
+      case Some(ttl) ⇒ Duration(ttl.toLong, TimeUnit.MILLISECONDS)
+      case _ ⇒ Duration.Inf
     }
 
     Message(
@@ -54,13 +54,13 @@ object Conversions {
 
   def toBasicProperties(message: Message): AMQP.BasicProperties = {
     def toDeliveryMode(mode: DeliveryMode) = mode match {
-      case NonPersistent => Integer.valueOf(1)
-      case Persistent => Integer.valueOf(2)
+      case NonPersistent ⇒ Integer.valueOf(1)
+      case Persistent ⇒ Integer.valueOf(2)
     }
 
     def toExpiration(value: Duration) = value match {
-      case value if value.isFinite => value.toMillis.toString
-      case _ => null
+      case value if value.isFinite ⇒ value.toMillis.toString
+      case _ ⇒ null
     }
 
     new AMQP.BasicProperties.Builder()

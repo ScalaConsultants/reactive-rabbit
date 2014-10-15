@@ -27,7 +27,7 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   override def createPublisher(elements: Long): Publisher[Delivery] = {
     val queue = channel.queueDeclare(UUID.randomUUID().toString,
       false, false, false, ImmutableMap.of("x-expires", 30000.asInstanceOf[Object])).getQueue
-    1L.to(elements).foreach(_ => channel.basicPublish("", queue, props, Array[Byte]()))
+    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue, props, Array[Byte]()))
     new QueuePublisher(connection, queue)
   }
 
