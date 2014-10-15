@@ -1,5 +1,6 @@
 package io.scalac.amqp
 
+
 /** Exchanges take a message and route it into zero or more queues.
   * The routing algorithm used depends on the exchange type and rules called bindings. */
 sealed trait Type

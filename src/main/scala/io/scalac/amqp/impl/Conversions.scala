@@ -15,10 +15,10 @@ import io.scalac.amqp._
 import org.joda.time.DateTime
 
 
-object Conversions {
+private object Conversions {
   def toMessage(properties: AMQP.BasicProperties, body: Array[Byte]): Message = {
     def toDeliveryMode(deliveryMode: Integer) = deliveryMode match {
-      case mode: Integer if mode == 2 ⇒> Persistent
+      case mode: Integer if mode == 2 ⇒ Persistent
       case _ ⇒ NonPersistent
     }
 
