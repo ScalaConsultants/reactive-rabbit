@@ -16,4 +16,7 @@ final case class Delivery(/** Delivered message. */
                           /** This is a hint as to whether this message may have been delivered before
                             * (but not acknowledged). If the flag is not set, the message definitely has
                             * not been delivered before. If it is set, it may have been delivered before. */
-                          redeliver: Boolean)
+                          redeliver: Boolean) {
+
+  require(exchange.length <= 255, "exchange.length > 255")
+}
