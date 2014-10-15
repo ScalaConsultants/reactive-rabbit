@@ -11,6 +11,8 @@ import org.reactivestreams.{Subscription, Subscriber}
 
 private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String, routingKey: String)
   extends Subscriber[Message] {
+  require(exchange.length <= 255, "exchange.length > 255")
+
   val subscription = new AtomicReference[Subscription]()
 
   override def onSubscribe(subscription: Subscription) = {
