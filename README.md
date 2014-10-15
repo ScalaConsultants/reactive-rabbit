@@ -9,15 +9,15 @@ Example
 // streaming invoices to Accounting Department
 val factory = new ConnectionFactory()
 val connection = AmqpConnection(factory)
-val publisher = connection.consume(queue = "invoices")
-val subscriber = connection.publish(exchange = "accounting_department",
+val queue = connection.consume(queue = "invoices")
+val exchange = connection.publish(exchange = "accounting_department",
   routingKey = "invoices")
 
-publisher.subscribe(new Subscriber[Delivery] {
-  override def onError(t: Throwable) = subscriber.onError(t)
-  override def onSubscribe(s: Subscription) = subscriber.onSubscribe(s)
-  override def onComplete() = subscriber.onComplete()
-  override def onNext(t: Delivery) = subscriber.onNext(t.message)
+queue.subscribe(new Subscriber[Delivery] {
+  override def onError(t: Throwable) = exchange.onError(t)
+  override def onSubscribe(s: Subscription) = exchange.onSubscribe(s)
+  override def onComplete() = exchange.onComplete()
+  override def onNext(t: Delivery) = exchange.onNext(t.message)
 })
 ```
 
