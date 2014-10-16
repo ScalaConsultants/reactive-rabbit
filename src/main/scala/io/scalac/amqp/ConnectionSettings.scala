@@ -14,7 +14,7 @@ final case class Address(
   /** The port to use when connecting to the broker. */
   port: Int) {
 
-  require(port > 0, "port <= 0")
+  require(port > 0 && port <= 65535, "port <= 0 || port > 65535")
 }
 
 object ConnectionSettings {
