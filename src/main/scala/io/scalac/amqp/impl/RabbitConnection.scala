@@ -21,8 +21,8 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends AmqpC
 
   factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis.toInt)
 
-  val addresses: Array[Address] = settings.addresses.map(addr =>
-    new Address(addr.host, addr.port))(collection.breakOut)
+  val addresses: Array[Address] = settings.addresses.map(address =>
+    new Address(address.host, address.port))(collection.breakOut)
 
   val underlying = factory.newConnection(addresses)
 

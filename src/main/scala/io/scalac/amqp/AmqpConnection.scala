@@ -1,7 +1,5 @@
 package io.scalac.amqp
 
-import com.rabbitmq.client.ConnectionFactory
-
 import io.scalac.amqp.impl.RabbitConnection
 
 import org.reactivestreams.{Subscriber, Publisher}
