@@ -6,6 +6,10 @@ Experimental implementation of [Reactive Streams](http://www.reactive-streams.or
 Example
 ----
 ```Scala
+import io.scalac.amqp.{Address, Connection, ConnectionSettings, Delivery}
+import org.reactivestreams.{Subscriber, Subscription}
+
+
 // streaming invoices to Accounting Department
 val connection = Connection(ConnectionSettings())
 val queue = connection.consume(queue = "invoices")
