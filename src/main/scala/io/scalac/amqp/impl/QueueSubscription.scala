@@ -24,13 +24,13 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
   override def handleShutdownSignal(consumerTag: String, sig: ShutdownSignalException) = sig match {
     case sig if !sig.isInitiatedByApplication ⇒ subscriber.onError(sig)
-    case _ ⇒ // shutdown initiated by us
+    case _                                    ⇒ // shutdown initiated by us
   }
 
   def prefetch(demand: Long): Unit = demand match {
     case demand if demand < Int.MaxValue ⇒ channel.basicQos(demand.toInt, true)
-    case Long.MaxValue ⇒ channel.basicQos(0, true) // 3.17: effectively unbounded
-    case _ ⇒ channel.basicQos(Int.MaxValue, true)
+    case Long.MaxValue                   ⇒ channel.basicQos(0, true) // 3.17: effectively unbounded
+    case _                               ⇒ channel.basicQos(Int.MaxValue, true)
   }
 
   override def handleDelivery(consumerTag: String,
@@ -39,7 +39,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
                               body: Array[Byte]) = {
     val delivery = Conversions.toDelivery(envelope, properties, body)
     demand.decrementAndGet() match {
-      case 0 ⇒ getChannel.basicCancel(tag)
+      case 0      ⇒ getChannel.basicCancel(tag)
       case demand ⇒ prefetch(demand)
     }
     subscriber.onNext(delivery)
@@ -55,20 +55,20 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
             case demand if demand == n ⇒
               prefetch(demand)
               channel.basicConsume(queue, false, tag, this)
-            case _ ⇒ // demand increased
+            case _                     ⇒ // demand increased
           }
         } catch {
           case exception: Exception ⇒
             subscriber.onError(exception)
         }
-      case _ ⇒ // 3.6: nop
+      case _     ⇒ // 3.6: nop
     }
 
   override def cancel() = try {
     channel.close()
   } catch {
     case _: AlreadyClosedException ⇒ // 3.7: nop
-    case exception: Exception ⇒
+    case exception: Exception      ⇒
       subscriber.onError(exception)
   }
 }
