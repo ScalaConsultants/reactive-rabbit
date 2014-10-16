@@ -31,5 +31,14 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     new QueuePublisher(underlying, queue)
 
   override def publish(exchange: String, routingKey: String) =
-    new ExchangeSubscriber(underlying.createChannel(), exchange, routingKey)
+    new ExchangeSubscriber(
+      channel = underlying.createChannel(),
+      exchange = exchange,
+      routingKey = routingKey)
+
+  override def publish(queue: String) =
+    new ExchangeSubscriber(
+      channel = underlying.createChannel(),
+      exchange = "",
+      routingKey = queue)
 }
