@@ -5,12 +5,12 @@ import io.scalac.amqp.impl.RabbitConnection
 import org.reactivestreams.{Subscriber, Publisher}
 
 
-object AmqpConnection {
+object Connection {
   def apply(settings: ConnectionSettings) =
     new RabbitConnection(settings)
 }
 
-trait AmqpConnection {
+trait Connection {
   def consume(queue: String): Publisher[Delivery]
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]

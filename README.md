@@ -7,8 +7,7 @@ Example
 ----
 ```Scala
 // streaming invoices to Accounting Department
-val factory = new ConnectionFactory()
-val connection = AmqpConnection(factory)
+val connection = Connection(ConnectionSettings())
 val queue = connection.consume(queue = "invoices")
 val exchange = connection.publish(exchange = "accounting_department",
   routingKey = "invoices")

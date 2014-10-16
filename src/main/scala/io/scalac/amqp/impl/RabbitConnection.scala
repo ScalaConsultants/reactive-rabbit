@@ -1,9 +1,9 @@
 package io.scalac.amqp.impl
 
 import com.rabbitmq.client.{Address, ConnectionFactory}
-import io.scalac.amqp.{ConnectionSettings, AmqpConnection}
+import io.scalac.amqp.{Connection, ConnectionSettings}
 
-private[amqp] class RabbitConnection(settings: ConnectionSettings) extends AmqpConnection {
+private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {
   val factory = new ConnectionFactory()
   factory.setVirtualHost(settings.virtualHost)
   factory.setUsername(settings.username)
