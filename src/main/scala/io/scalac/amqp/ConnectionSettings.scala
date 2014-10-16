@@ -3,6 +3,8 @@ package io.scalac.amqp
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
 
+import io.scalac.amqp.ConnectionSettings._
+
 
 /** Hostname/port pair. */
 final case class Address(
@@ -16,6 +18,22 @@ final case class Address(
 }
 
 object ConnectionSettings {
+  /** Minimum value for connection timeout setting. */
+  val TimeoutMin = 1.milli
+
+  /** Maximum value for connection timeout setting. */
+  val TimeoutMax = Int.MaxValue.millis
+
+  /** Minimum value for heartbeat interval. */
+  val HeartbeatMin = 1.second
+
+  /** Maximum value for heartbeat interval. */
+  val HeartbeatMax = Int.MaxValue.seconds
+
+  /** Maximum value for network recovery interval setting. */
+  val RecoveryIntervalMax = Int.MaxValue.millis
+
+
   /** Create settings with some sane default values.
     * Applicable only for connecting to RabbitMQ broker running on localhost. */
   def apply(): ConnectionSettings = apply(
@@ -24,8 +42,8 @@ object ConnectionSettings {
     username = "guest",
     password = "guest",
     heartbeat = None,
-    connectionTimeout = Duration.Inf,
-    networkRecoveryInterval = 5.seconds
+    timeout = Duration.Inf,
+    recoveryInterval = 5.seconds
   )
 }
 
@@ -50,15 +68,18 @@ final case class ConnectionSettings(
   heartbeat: Option[FiniteDuration],
 
   /** The default connection timeout, at least 1 millisecond. */
-  connectionTimeout: Duration,
+  timeout: Duration,
 
   /** How long will automatic recovery wait before attempting to reconnect. */
-  networkRecoveryInterval: FiniteDuration) {
+  recoveryInterval: FiniteDuration) {
 
   heartbeat.foreach(interval =>
-    require(interval.toSeconds > 0,
-      "requestedHeartbeat < 1 second"))
+    require(interval >= HeartbeatMin && interval <= HeartbeatMax,
+      s"heartbeat < $HeartbeatMin || heartbeat > $HeartbeatMax"))
 
-  require(!connectionTimeout.isFinite || connectionTimeout.toMillis > 0,
-    "connectionTimeout < 1 millisecond")
+  require(!timeout.isFinite ||
+    timeout >= TimeoutMin && timeout <= TimeoutMax,
+    s"timeout < $TimeoutMin || timeout > $TimeoutMax")
+
+  require(recoveryInterval <= RecoveryIntervalMax)
 }

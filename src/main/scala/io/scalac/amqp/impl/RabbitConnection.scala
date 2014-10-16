@@ -14,12 +14,12 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends AmqpC
     case None           ⇒ factory.setRequestedHeartbeat(0)
   }
 
-  settings.connectionTimeout match {
+  settings.timeout match {
     case finite if finite.isFinite ⇒ factory.setConnectionTimeout(finite.toMillis.toInt)
     case _                         ⇒ factory.setConnectionTimeout(0)
   }
 
-  factory.setNetworkRecoveryInterval(settings.networkRecoveryInterval.toMillis.toInt)
+  factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis.toInt)
 
   val addresses: Array[Address] = settings.addresses.map(addr =>
     new Address(addr.host, addr.port))(collection.breakOut)
