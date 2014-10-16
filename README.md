@@ -3,8 +3,31 @@ Reactive Streams: AMQP
 
 Experimental implementation of [Reactive Streams](http://www.reactive-streams.org) for AMQP based on [RabbitMQ](https://www.rabbitmq.com/) library.
 
-Example
+Examples
 ----
+
+#### Akka Streams (0.9)
+
+```Scala
+import akka.actor.ActorSystem
+import akka.stream.scaladsl2.{FlowMaterializer, Sink, Source}
+import io.scalac.amqp.{Address, Connection, ConnectionSettings}
+
+
+// streaming invoices to Accounting Department
+val connection = Connection(ConnectionSettings())
+val queue = connection.consume(queue = "invoices")
+val exchange = connection.publish(exchange = "accounting_department",
+  routingKey = "invoices")
+
+implicit val system = ActorSystem()
+implicit val materializer = FlowMaterializer()
+
+Source(queue).map(_.message).connect(Sink(exchange)).run()
+```
+
+#### Reactive Streams
+
 ```Scala
 import io.scalac.amqp.{Address, Connection, ConnectionSettings, Delivery}
 import org.reactivestreams.{Subscriber, Subscription}
