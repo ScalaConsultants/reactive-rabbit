@@ -23,7 +23,7 @@ object ConnectionSettings {
     virtualHost = "/",
     username = "guest",
     password = "guest",
-    requestedHeartbeat = None,
+    heartbeat = None,
     connectionTimeout = Duration.Inf,
     networkRecoveryInterval = 5.seconds
   )
@@ -47,7 +47,7 @@ final case class ConnectionSettings(
 
   /** Requested heartbeat interval, at least 1 second.
     * [[None]] to disable heartbeat. */
-  requestedHeartbeat: Option[FiniteDuration],
+  heartbeat: Option[FiniteDuration],
 
   /** The default connection timeout, at least 1 millisecond. */
   connectionTimeout: Duration,
@@ -55,8 +55,8 @@ final case class ConnectionSettings(
   /** How long will automatic recovery wait before attempting to reconnect. */
   networkRecoveryInterval: FiniteDuration) {
 
-  requestedHeartbeat.foreach(duration =>
-    require(duration.toSeconds > 0,
+  heartbeat.foreach(interval =>
+    require(interval.toSeconds > 0,
       "requestedHeartbeat < 1 second"))
 
   require(!connectionTimeout.isFinite || connectionTimeout.toMillis > 0,

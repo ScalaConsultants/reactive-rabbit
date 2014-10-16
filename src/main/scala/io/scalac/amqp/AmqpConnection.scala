@@ -8,8 +8,8 @@ import org.reactivestreams.{Subscriber, Publisher}
 
 
 object AmqpConnection {
-  def apply(cf: ConnectionFactory) =
-    new RabbitConnection(cf.newConnection())
+  def apply(settings: ConnectionSettings) =
+    new RabbitConnection(settings)
 }
 
 trait AmqpConnection {
