@@ -65,11 +65,11 @@ object ConnectionSettings {
     password = config.getString("amqp.password"),
     heartbeat = config.getString("amqp.heartbeat").toLowerCase match {
       case "disable" ⇒ None
-      case _         ⇒ Some(config.getMillisDuration("amqp.heartbeat"))
+      case _         ⇒ Some(config.getSecondsDuration("amqp.heartbeat"))
     },
     timeout = config.getString("amqp.timeout").toLowerCase match {
       case "infinite" ⇒ Duration.Inf
-      case _          ⇒ config.getSecondsDuration("amqp.timeout")
+      case _          ⇒ config.getMillisDuration("amqp.timeout")
     },
     recoveryInterval = config.getMillisDuration("amqp.recovery-interval")
   )
