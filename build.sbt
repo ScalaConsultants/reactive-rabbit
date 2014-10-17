@@ -1,4 +1,3 @@
-// set the name of the project
 name := "amqp"
 
 version := "1.0"

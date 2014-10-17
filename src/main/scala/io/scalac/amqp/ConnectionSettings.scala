@@ -1,5 +1,9 @@
 package io.scalac.amqp
 
+import java.util.concurrent.TimeUnit
+
+import com.typesafe.config.Config
+
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
 
@@ -46,6 +50,37 @@ object ConnectionSettings {
     timeout = Duration.Inf,
     recoveryInterval = 5.seconds
   )
+
+  def apply(config: Config): ConnectionSettings = apply(
+    addresses = {
+      import scala.collection.JavaConversions._
+      config.getConfigList("addresses").map(address =>
+        Address(
+          host = address.getString("host"),
+          port = address.getInt("port")
+        ))(collection.breakOut)
+    },
+    virtualHost = config.getString("virtual-host"),
+    username = config.getString("username"),
+    password = config.getString("password"),
+    heartbeat = config.getString("heartbeat").toLowerCase match {
+      case "disable" ⇒ None
+      case _         ⇒ Some(config.getMillisDuration("heartbeat"))
+    },
+    timeout = config.getString("connection-timeout").toLowerCase match {
+      case "infinite" ⇒ Duration.Inf
+      case _          ⇒ config.getSecondsDuration("connection-timeout")
+    },
+    recoveryInterval = config.getMillisDuration("network-recovery-interval")
+  )
+
+  /** INTERNAL API */
+  private[amqp] final implicit class ConfigOps(val config: Config) extends AnyVal {
+    def getMillisDuration(path: String): FiniteDuration = getDuration(path, TimeUnit.MILLISECONDS)
+    def getSecondsDuration(path: String): FiniteDuration = getDuration(path, TimeUnit.SECONDS)
+    private def getDuration(path: String, unit: TimeUnit): FiniteDuration =
+      Duration(config.getDuration(path, unit), unit)
+  }
 }
 
 /** List of settings required to establish connection to the broker. */
