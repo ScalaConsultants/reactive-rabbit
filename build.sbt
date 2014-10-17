@@ -7,10 +7,10 @@ organization := "io.scalac"
 
 startYear := Some(2014)
 
-// set the Scala version used for the project
+licenses := Seq("Apache License 2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
+
 scalaVersion := "2.11.2"
 
-// append -deprecation to the options passed to the Scala compiler
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
 libraryDependencies ++= Seq(
