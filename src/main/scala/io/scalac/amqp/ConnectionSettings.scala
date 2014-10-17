@@ -54,24 +54,24 @@ object ConnectionSettings {
   def apply(config: Config): ConnectionSettings = apply(
     addresses = {
       import scala.collection.JavaConversions._
-      config.getConfigList("addresses").map(address =>
+      config.getConfigList("amqp.addresses").map(address =>
         Address(
           host = address.getString("host"),
           port = address.getInt("port")
         ))(collection.breakOut)
     },
-    virtualHost = config.getString("virtual-host"),
-    username = config.getString("username"),
-    password = config.getString("password"),
-    heartbeat = config.getString("heartbeat").toLowerCase match {
+    virtualHost = config.getString("amqp.virtual-host"),
+    username = config.getString("amqp.username"),
+    password = config.getString("amqp.password"),
+    heartbeat = config.getString("amqp.heartbeat").toLowerCase match {
       case "disable" ⇒ None
-      case _         ⇒ Some(config.getMillisDuration("heartbeat"))
+      case _         ⇒ Some(config.getMillisDuration("amqp.heartbeat"))
     },
-    timeout = config.getString("connection-timeout").toLowerCase match {
+    timeout = config.getString("amqp.timeout").toLowerCase match {
       case "infinite" ⇒ Duration.Inf
-      case _          ⇒ config.getSecondsDuration("connection-timeout")
+      case _          ⇒ config.getSecondsDuration("amqp.timeout")
     },
-    recoveryInterval = config.getMillisDuration("network-recovery-interval")
+    recoveryInterval = config.getMillisDuration("amqp.recovery-interval")
   )
 
   /** INTERNAL API */
