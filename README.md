@@ -11,11 +11,11 @@ Examples
 ```Scala
 import akka.actor.ActorSystem
 import akka.stream.scaladsl2.{FlowMaterializer, Sink, Source}
-import io.scalac.amqp.{Address, Connection, ConnectionSettings}
+import io.scalac.amqp.Connection
 
 
 // streaming invoices to Accounting Department
-val connection = Connection(ConnectionSettings())
+val connection = Connection()
 val queue = connection.consume(queue = "invoices")
 val exchange = connection.publish(exchange = "accounting_department",
   routingKey = "invoices")
@@ -29,12 +29,12 @@ Source(queue).map(_.message).connect(Sink(exchange)).run()
 #### Reactive Streams
 
 ```Scala
-import io.scalac.amqp.{Address, Connection, ConnectionSettings, Delivery}
+import io.scalac.amqp.{Connection, Delivery}
 import org.reactivestreams.{Subscriber, Subscription}
 
 
 // streaming invoices to Accounting Department
-val connection = Connection(ConnectionSettings())
+val connection = Connection()
 val queue = connection.consume(queue = "invoices")
 val exchange = connection.publish(exchange = "accounting_department",
   routingKey = "invoices")

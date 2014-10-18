@@ -54,7 +54,7 @@ object ConnectionSettings {
   def apply(config: Config): ConnectionSettings = apply(
     addresses = {
       import scala.collection.JavaConversions._
-      config.getConfigList("amqp.addresses").map(address =>
+      config.getConfigList("amqp.addresses").map(address ⇒
         Address(
           host = address.getString("host"),
           port = address.getInt("port")
@@ -109,7 +109,7 @@ final case class ConnectionSettings(
   /** How long will automatic recovery wait before attempting to reconnect. */
   recoveryInterval: FiniteDuration) {
 
-  heartbeat.foreach(interval =>
+  heartbeat.foreach(interval ⇒
     require(interval >= HeartbeatMin && interval <= HeartbeatMax,
       s"heartbeat < $HeartbeatMin || heartbeat > $HeartbeatMax"))
 

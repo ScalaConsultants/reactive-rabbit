@@ -1,12 +1,20 @@
 package io.scalac.amqp
 
+import com.typesafe.config.{ConfigFactory, Config}
+
 import io.scalac.amqp.impl.RabbitConnection
 
 import org.reactivestreams.{Subscriber, Publisher}
 
 
 object Connection {
-  def apply(settings: ConnectionSettings) =
+  def apply(): Connection =
+    apply(ConfigFactory.load())
+
+  def apply(config: Config): Connection =
+    apply(ConnectionSettings(config))
+
+  def apply(settings: ConnectionSettings): Connection =
     new RabbitConnection(settings)
 }
 
