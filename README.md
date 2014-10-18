@@ -50,3 +50,4 @@ queue.subscribe(new Subscriber[Delivery] {
 Caveats
 ----
  * `QueueSubscription` will cancel underyling consumer when demand goes to zero. This will cause queue with `auto-delete` attribute to get deleted by the broker. Solution to this problem is not ready yet. Exclusive queues are not affected beucase their life cycle is bounded to connection.
+ * `QueueSubscription` will fail and run `Subscriber.onError` if the queue is deleted during when the demand is equal to zero. Since there is no active subscription the RabbitMQ driver is unable to tell that queue has been deleted and `QueueSubscription` will try to register new consumer after receiving `request(n: Long)`.
