@@ -47,7 +47,7 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   }
 
   override def request(n: Long) =
-    channel.isOpen match {
+    channel.isOpen() match {
       case true ⇒
         require(n > 0, "Rule 3.9: n <= 0")
         try {
