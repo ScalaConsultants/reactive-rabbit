@@ -9,10 +9,10 @@ object Queue {
   /** Setting the TTL to 0 causes messages to be expired upon reaching a queue unless
     * they can be delivered to a consumer immediately. Thus this provides an alternative
     * to immediate flag, which the RabbitMQ server does not support. */
-  val XMessageTtlMin = 0.millis
-  val XMessageTtlMax = 4294967295.millis
+  val XMessageTtlMin = 0L.millis
+  val XMessageTtlMax = 4294967295L.millis
 
-  val XExpiresMin = 0.millis
+  val XExpiresMin = 0L.millis
 
   val XMaxLengthMin = 0L
   val XMaxLengthMax = 4294967295L
