@@ -79,7 +79,7 @@ final case class Queue(
   /** Maximum length can be set by supplying value for this field. Queue length is a measure that takes
     * into account ready messages, ignoring unacknowledged messages and message size. Messages will be dropped
     * or dead-lettered from the front of the queue to make room for new messages once the limit is reached. */
-  xMaxLength: Option[Long],
+  xMaxLength: Option[Long] = None,
 
   /** Messages from a queue can be 'dead-lettered'; that is, republished to another exchange
     * when any of the following events occur:
