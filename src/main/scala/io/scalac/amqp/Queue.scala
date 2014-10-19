@@ -45,7 +45,7 @@ final case class Queue(
     * Durability of a queue does not make messages that are routed to that queue durable.
     * If broker is taken down and then brought back up, durable queue will be re-declared
     * during broker startup, however, only persistent messages will be recovered. */
-  durable: Boolean = true,
+  durable: Boolean = false,
 
   /** Used by only one connection and the queue will be deleted when that connection closes. */
   exclusive: Boolean = false,
