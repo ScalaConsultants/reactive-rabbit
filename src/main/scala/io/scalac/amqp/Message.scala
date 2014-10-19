@@ -11,7 +11,7 @@ import org.joda.time.DateTime
 
 final case class Message(
   /** Message body. */
-  body: ByteString,
+  body: ByteString = ByteString.empty,
 
   /** The RFC-2046 MIME type for the messages application-data section (body).
     * Can contain a charset parameter defining the character encoding
