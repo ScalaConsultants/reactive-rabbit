@@ -14,10 +14,7 @@ final case class Exchange(
   durable: Boolean,
 
   /** Exchange is deleted when all queues have finished using it. */
-  autoDelete: Boolean,
-
-  /** These are broker-dependent. */
-  arguments: Map[String, String]) {
+  autoDelete: Boolean) {
 
   require(name.length <= 255, "name.length > 255")
 }

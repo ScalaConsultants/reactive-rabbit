@@ -34,11 +34,6 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
     val args = ImmutableMap.builder[String, Object]()
 
-    // make copy of user arguments
-    queue.arguments.foreach {
-      case (key, value) => args.put(key, value)
-    }
-
     // RabbitMQ extension: Per-Queue Message TTL
     if(queue.xMessageTtl.isFinite) {
       args.put("x-message-ttl", queue.xMessageTtl.toMillis.asInstanceOf[Object])
