@@ -64,7 +64,8 @@ final case class Message(
   replyTo: Option[String] = None,
 
   /** Expiration time after which the message will be deleted.
-    * The value of the expiration field describes the TTL period in milliseconds. */
+    * The value of the expiration field describes the TTL period in milliseconds.
+    * When both a per-queue and a per-message TTL are specified, the lower value between the two will be chosen.*/
   expiration: Duration = Duration.Inf,
 
   /** Message identifier as a string. If applications need to identify messages,
