@@ -90,7 +90,7 @@ final case class Queue(
     *
     * Dead letter exchanges (DLXs) are normal exchanges.
     * They can be any of the usual types and are declared as usual. */
-  xDeadLetterExchange: Option[XDeadLetterExchange],
+  xDeadLetterExchange: Option[XDeadLetterExchange] = None,
 
   /** Some brokers use it to implement additional features like message TTL. */
   arguments: Map[String, String] = Map()) {
