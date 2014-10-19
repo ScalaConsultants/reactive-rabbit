@@ -32,7 +32,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
   override def declare(queue: Queue) = {
     val channel = underlying.createChannel()
 
-    val args = ImmutableMap.builder[String, AnyRef]()
+    val args = ImmutableMap.builder[String, Object]()
 
     // make copy of user arguments
     queue.arguments.foreach {
@@ -41,16 +41,16 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
     // RabbitMQ extension: Per-Queue Message TTL
     if(queue.xMessageTtl.isFinite) {
-      args.put("x-message-ttl", queue.xMessageTtl.toMillis)
+      args.put("x-message-ttl", queue.xMessageTtl.toMillis.asInstanceOf[Object])
     }
 
     // RabbitMQ extension: Queue TTL
     if(queue.xExpires.isFinite) {
-      args.put("x-expires", queue.xExpires.toMillis)
+      args.put("x-expires", queue.xExpires.toMillis.asInstanceOf[Object])
     }
 
     // RabbitMQ extension: Queue Length Limit
-    queue.xMaxLength.foreach(args.put("x-max-length", _))
+    queue.xMaxLength.foreach(max => args.put("x-max-length", max.asInstanceOf[Object]))
 
     // RabbitMQ extension: Dead Letter Exchange
     queue.xDeadLetterExchange.foreach { exchange =>
