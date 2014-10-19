@@ -1,7 +1,10 @@
 package io.scalac.amqp.impl
 
+import com.google.common.collect.ImmutableMap
 import com.rabbitmq.client.{Address, ConnectionFactory}
-import io.scalac.amqp.{Connection, ConnectionSettings}
+
+import io.scalac.amqp.{Queue, Connection, ConnectionSettings}
+
 
 private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {
   val factory = new ConnectionFactory()
@@ -26,6 +29,39 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   val underlying = factory.newConnection(addresses)
 
+  override def declare(queue: Queue) = {
+    val channel = underlying.createChannel()
+
+    val args = ImmutableMap.builder[String, AnyRef]()
+
+    // make copy of user arguments
+    queue.arguments.foreach {
+      case (key, value) => args.put(key, value)
+    }
+
+    // RabbitMQ extension: Per-Queue Message TTL
+    if(queue.xMessageTtl.isFinite) {
+      args.put("x-message-ttl", queue.xMessageTtl.toMillis)
+    }
+
+    // RabbitMQ extension: Queue TTL
+    if(queue.xExpires.isFinite) {
+      args.put("x-expires", queue.xExpires.toMillis)
+    }
+
+    // RabbitMQ extension: Queue Length Limit
+    queue.xMaxLength.foreach(args.put("x-max-length", _))
+
+    // RabbitMQ extension: Dead Letter Exchange
+    queue.xDeadLetterExchange.foreach { exchange =>
+      args.put("x-dead-letter-exchange", exchange.name)
+      exchange.key.foreach(key =>
+        args.put("x-dead-letter-routing-key", key.value))
+    }
+
+    channel.queueDeclare(queue.name, queue.durable, queue.exclusive, queue.autoDelete, args.build())
+    channel.close()
+  }
 
   override def consume(queue: String) =
     new QueuePublisher(underlying, queue)

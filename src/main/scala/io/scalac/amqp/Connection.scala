@@ -19,6 +19,8 @@ object Connection {
 }
 
 trait Connection {
+  def declare(queue: Queue): Unit
+
   def consume(queue: String): Publisher[Delivery]
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]
