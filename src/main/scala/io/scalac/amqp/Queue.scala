@@ -2,7 +2,7 @@ package io.scalac.amqp
 
 import scala.concurrent.duration._
 
-import io.scalac.amqp.Queue.{XMessageTtlMin, XMessageTtlMax, XExpiresMin}
+import io.scalac.amqp.Queue._
 
 
 object Queue {
@@ -13,6 +13,22 @@ object Queue {
   val XMessageTtlMax = 4294967295.millis
 
   val XExpiresMin = 0.millis
+
+  val XMaxLengthMin = 0L
+  val XMaxLengthMax = 4294967295L
+
+
+  /** Dead letter exchanges (DLXs) are normal exchanges.
+    * They can be any of the usual types and are declared as usual. */
+  final case class XDeadLetterExchange(
+    /** Name of dead letter exchange. */
+    name: String,
+    /** You may also specify a routing key to be used when dead-lettering messages.
+      * If this is not set, the message's own routing keys will be used. */
+    key: Option[RoutingKey]) {
+
+    require(name.length <= 255, "name.length > 255")
+  }
 }
 
 
@@ -60,6 +76,22 @@ final case class Queue(
     * for example, for RPC-style reply queues, where many queues can be created which may never be drained. */
   xExpires: Duration = Duration.Inf,
 
+  /** Maximum length can be set by supplying value for this field. Queue length is a measure that takes
+    * into account ready messages, ignoring unacknowledged messages and message size. Messages will be dropped
+    * or dead-lettered from the front of the queue to make room for new messages once the limit is reached. */
+  xMaxLength: Option[Long],
+
+  /** Messages from a queue can be 'dead-lettered'; that is, republished to another exchange
+    * when any of the following events occur:
+    *
+    * - The message is rejected (not requeued),
+    * - The TTL for the message expires,
+    * - The queue length limit is exceeded.
+    *
+    * Dead letter exchanges (DLXs) are normal exchanges.
+    * They can be any of the usual types and are declared as usual. */
+  xDeadLetterExchange: Option[XDeadLetterExchange],
+
   /** Some brokers use it to implement additional features like message TTL. */
   arguments: Map[String, String] = Map()) {
 
@@ -69,4 +101,7 @@ final case class Queue(
     s"xMessageTtl < $XMessageTtlMin || xMessageTtl > $XMessageTtlMax")
   require(!xExpires.isFinite || xExpires >= XExpiresMin,
     s"xExpires < $XExpiresMin")
+  xMaxLength.foreach(xMaxLength =>
+    require(xMaxLength >= XMaxLengthMin && xMaxLength <= XMaxLengthMax,
+      s"xMaxLength < $XMaxLengthMin || xMaxLength > $XMaxLengthMax"))
 }
