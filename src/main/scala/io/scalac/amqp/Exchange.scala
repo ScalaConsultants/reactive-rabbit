@@ -13,6 +13,10 @@ final case class Exchange(
   /** If set to true than exchange will survive broker restart. */
   durable: Boolean,
 
+  /** If set, the exchange may not be used directly by publishers, but only when bound to other exchanges.
+    * Internal exchanges are used to construct wiring that is not visible to applications. */
+  internal: Boolean,
+
   /** Exchange is deleted when all queues have finished using it. */
   autoDelete: Boolean) {
 
