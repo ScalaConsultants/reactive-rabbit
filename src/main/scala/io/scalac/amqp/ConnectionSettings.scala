@@ -39,18 +39,7 @@ object ConnectionSettings {
   val RecoveryIntervalMax = Int.MaxValue.millis
 
 
-  /** Create settings with some sane default values.
-    * Applicable only for connecting to RabbitMQ broker running on localhost. */
-  def apply(): ConnectionSettings = apply(
-    addresses = Seq(Address(host = "localhost", port = 5672)),
-    virtualHost = "/",
-    username = "guest",
-    password = "guest",
-    heartbeat = None,
-    timeout = Duration.Inf,
-    recoveryInterval = 5.seconds
-  )
-
+  /** Builds settings from TypeSafe Config. */
   def apply(config: Config): ConnectionSettings = apply(
     addresses = {
       import scala.collection.JavaConversions._
