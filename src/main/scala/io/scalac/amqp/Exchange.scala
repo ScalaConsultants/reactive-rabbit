@@ -18,7 +18,14 @@ final case class Exchange(
   internal: Boolean,
 
   /** Exchange is deleted when all queues have finished using it. */
-  autoDelete: Boolean) {
+  autoDelete: Boolean,
+
+  /** Whenever an exchange with a configured AE cannot route a message to any queue, it publishes the message
+    * to the specified AE instead. If that AE does not exist then a warning is logged. If an AE cannot route
+    * a message, it in turn publishes the message to its AE, if it has one configured. This process continues
+    * until either the message is successfully routed, the end of the chain of AEs is reached, or an AE
+    * is encountered which has already attempted to route the message. */
+  xAlternateExchange: Option[String] = None) {
 
   require(name.length <= 255, "name.length > 255")
 }
