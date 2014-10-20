@@ -2,13 +2,12 @@ package io.scalac.amqp.impl
 
 import java.util.UUID
 
-import com.google.common.collect.ImmutableMap
-import com.rabbitmq.client.{AMQP, ConnectionFactory}
+import com.rabbitmq.client.AMQP
 
-import io.scalac.amqp.Delivery
+import io.scalac.amqp.{Connection, Delivery, Queue}
 
 import org.reactivestreams.tck.{PublisherVerification, TestEnvironment}
-import org.reactivestreams.{Subscriber, Publisher}
+import org.reactivestreams.Publisher
 import org.scalatest.testng.TestNGSuiteLike
 
 
@@ -20,21 +19,20 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   def this() = this(new TestEnvironment(600L), 1000L)
 
   val props = new AMQP.BasicProperties.Builder().build()
-  val factory = new ConnectionFactory
-  val connection = factory.newConnection()
-  val channel = connection.createChannel()
+  val connection = Connection()
+  val channel = connection.asInstanceOf[RabbitConnection].underlying.createChannel()
 
   override def createPublisher(elements: Long): Publisher[Delivery] = {
-    val queue = channel.queueDeclare(UUID.randomUUID().toString,
-      false, false, false, ImmutableMap.of("x-expires", 30000.asInstanceOf[Object])).getQueue
-    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue, props, Array[Byte]()))
-    new QueuePublisher(connection, queue)
+    val name = UUID.randomUUID().toString
+    connection.declare(Queue(name = name, exclusive = true))
+    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", name, props, Array[Byte]()))
+    connection.consume(name)
   }
 
   override def createErrorStatePublisher(): Publisher[Delivery] = {
-    val connection = factory.newConnection()
-    connection.close()
-    new QueuePublisher(connection, "foo")
+    val conn = Connection()
+    conn.asInstanceOf[RabbitConnection].underlying.close()
+    conn.consume("whatever")
   }
 
   override def createPublisher1MustProduceAStreamOfExactly1Element() = ()
