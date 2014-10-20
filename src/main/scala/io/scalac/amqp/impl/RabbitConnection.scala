@@ -3,7 +3,7 @@ package io.scalac.amqp.impl
 import com.google.common.collect.ImmutableMap
 import com.rabbitmq.client.{Address, ConnectionFactory}
 
-import io.scalac.amqp.{Queue, Connection, ConnectionSettings}
+import io.scalac.amqp._
 
 
 private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {
@@ -28,6 +28,24 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     new Address(address.host, address.port))(collection.breakOut)
 
   val underlying = factory.newConnection(addresses)
+
+  def declare(exchange: Exchange) = {
+    val channel = underlying.createChannel()
+
+    val `type` = exchange.`type` match {
+      case Direct => "direct"
+      case Topic => "topic"
+      case Fanout => "fanout"
+      case Headers => "headers"
+    }
+
+    val args = ImmutableMap.builder[String, Object]()
+    exchange.xAlternateExchange.foreach(args.put("alternate-exchange", _))
+
+    channel.exchangeDeclare(exchange.name, `type`, exchange.durable,
+      exchange.autoDelete, exchange.internal, args.build())
+    channel.close()
+  }
 
   override def declare(queue: Queue) = {
     val channel = underlying.createChannel()
