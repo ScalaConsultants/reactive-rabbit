@@ -22,6 +22,9 @@ trait Connection {
   def declare(exchange: Exchange): Unit
   def declare(queue: Queue): Unit
 
+  def deleteQueue(name: String): Unit
+  def deleteExchange(name: String): Unit
+
   def consume(queue: String): Publisher[Delivery]
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]

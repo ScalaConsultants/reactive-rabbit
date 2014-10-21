@@ -76,6 +76,18 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     channel.close()
   }
 
+  override def deleteQueue(name: String) = {
+    val channel = underlying.createChannel()
+    channel.queueDelete(name)
+    channel.close()
+  }
+
+  override def deleteExchange(name: String) = {
+    val channel = underlying.createChannel()
+    channel.exchangeDelete(name)
+    channel.close()
+  }
+
   override def consume(queue: String) =
     new QueuePublisher(underlying, queue)
 
