@@ -1,13 +1,14 @@
 package io.scalac.amqp.impl
 
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 
 import com.rabbitmq.client.AMQP
 
 import io.scalac.amqp.{Connection, Delivery, Queue}
 
 import org.reactivestreams.tck.{PublisherVerification, TestEnvironment}
-import org.reactivestreams.Publisher
+import org.reactivestreams.{Subscription, Subscriber, Publisher}
 import org.scalatest.testng.TestNGSuiteLike
 
 
@@ -15,6 +16,29 @@ import org.scalatest.testng.TestNGSuiteLike
   * Here you can get it: https://www.rabbitmq.com/download.html */
 class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   extends PublisherVerification[Delivery](env, publisherShutdownTimeout) with TestNGSuiteLike {
+
+
+  def callOnN(delegate: Publisher[Delivery], n: Long)(f: () => Unit) = new Publisher[Delivery] {
+    require(n > 0)
+
+    override def subscribe(subscriber: Subscriber[_ >: Delivery]) =
+      delegate.subscribe(new Subscriber[Delivery] {
+        val counter = new AtomicLong()
+
+        override def onError(t: Throwable) = subscriber.onError(t)
+        override def onSubscribe(s: Subscription) = subscriber.onSubscribe(s)
+        override def onComplete() = subscriber.onComplete()
+
+        override def onNext(t: Delivery) = {
+          subscriber.onNext(t)
+
+          counter.incrementAndGet() match {
+            case `n` ⇒ f()
+            case _   ⇒ // maybe next time
+          }
+        }
+      })
+  }
 
   def this() = this(new TestEnvironment(600L), 1000L)
 
@@ -26,7 +50,11 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
     val name = UUID.randomUUID().toString
     connection.declare(Queue(name = name, exclusive = true))
     1L.to(elements).foreach(_ ⇒ channel.basicPublish("", name, props, Array[Byte]()))
-    connection.consume(name)
+
+    callOnN(
+      delegate = connection.consume(name),
+      n = elements)(() =>
+      connection.deleteQueue(name))
   }
 
   override def createErrorStatePublisher(): Publisher[Delivery] = {
