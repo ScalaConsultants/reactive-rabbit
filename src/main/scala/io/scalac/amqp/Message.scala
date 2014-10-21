@@ -6,7 +6,15 @@ import akka.util.ByteString
 
 import com.google.common.net.MediaType
 
+import io.scalac.amqp.Message.{PriorityMin, PriorityMax}
+
 import org.joda.time.DateTime
+
+
+object Message {
+  val PriorityMin = 0
+  val PriorityMax = 9
+}
 
 
 final case class Message(
@@ -84,5 +92,9 @@ final case class Message(
   userId: Option[String] = None,
 
   /** Identifier of the application that produced the message. */
-  appId: Option[String] = None
-)
+  appId: Option[String] = None) {
+
+  priority.foreach(priority =>
+    require(priority >= PriorityMin && priority <= PriorityMax,
+      s"priority < $PriorityMin || priority > $PriorityMax"))
+}
