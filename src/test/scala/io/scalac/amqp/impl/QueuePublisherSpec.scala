@@ -65,10 +65,6 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
 
   override def createPublisher1MustProduceAStreamOfExactly1Element() = ()
   override def createPublisher3MustProduceAStreamOfExactly3Elements() = ()
-  override def spec102_maySignalLessThanRequestedAndTerminateSubscription() = ()
-  override def spec103_mustSignalOnMethodsSequentially() = ()
   override def spec105_mustSignalOnCompleteWhenFiniteStreamTerminates() = ()
   override def spec107_mustNotEmitFurtherSignalsOnceOnCompleteHasBeenSignalled() = ()
-  override def spec317_mustSupportACumulativePendingElementCountUpToLongMaxValue() = ()
-  override def spec317_mustSupportAPendingElementCountUpToLongMaxValue() = ()
 }
