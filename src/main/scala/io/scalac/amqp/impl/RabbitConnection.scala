@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap
 import com.rabbitmq.client.{Address, ConnectionFactory}
 
 import io.scalac.amqp._
+import org.reactivestreams.{Subscription, Subscriber}
 
 
 private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {
@@ -92,14 +93,27 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     new QueuePublisher(underlying, queue)
 
   override def publish(exchange: String, routingKey: String) =
+    new Subscriber[Message] {
+      val delegate = new ExchangeSubscriber(
+        channel = underlying.createChannel(),
+        exchange = exchange)
+
+      override def onError(t: Throwable) = delegate.onError(t)
+      override def onSubscribe(s: Subscription) = delegate.onSubscribe(s)
+      override def onComplete() = delegate.onComplete()
+
+      override def onNext(message: Message) =
+        delegate.onNext(Routed(
+          routingKey = routingKey,
+          message = message))
+    }
+
+  override def publish(exchange: String) =
     new ExchangeSubscriber(
       channel = underlying.createChannel(),
-      exchange = exchange,
-      routingKey = routingKey)
+      exchange = exchange)
 
   override def publishDirectly(queue: String) =
-    new ExchangeSubscriber(
-      channel = underlying.createChannel(),
-      exchange = "",
+    publish(exchange = "",
       routingKey = queue)
 }

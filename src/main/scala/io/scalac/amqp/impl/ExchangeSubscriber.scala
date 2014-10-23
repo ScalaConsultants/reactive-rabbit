@@ -4,13 +4,13 @@ import java.util.concurrent.atomic.AtomicReference
 
 import com.rabbitmq.client.Channel
 
-import io.scalac.amqp.Message
+import io.scalac.amqp.Routed
 
 import org.reactivestreams.{Subscription, Subscriber}
 
 
-private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String, routingKey: String)
-  extends Subscriber[Message] {
+private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
+  extends Subscriber[Routed] {
   require(exchange.length <= 255, "exchange.length > 255")
 
   val subscription = new AtomicReference[Subscription]()
@@ -20,12 +20,12 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String, routi
     subscription.request(1)
   }
 
-  override def onNext(message: Message) = {
+  override def onNext(routed: Routed) = {
     channel.basicPublish(
       exchange,
-      routingKey,
-      Conversions.toBasicProperties(message),
-      message.body.toArray)
+      routed.routingKey,
+      Conversions.toBasicProperties(routed.message),
+      routed.message.body.toArray)
     subscription.get().request(1)
   }
 
