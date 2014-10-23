@@ -97,7 +97,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       exchange = exchange,
       routingKey = routingKey)
 
-  override def publish(queue: String) =
+  override def publishDirectly(queue: String) =
     new ExchangeSubscriber(
       channel = underlying.createChannel(),
       exchange = "",

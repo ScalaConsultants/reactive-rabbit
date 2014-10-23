@@ -29,5 +29,5 @@ trait Connection {
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]
 
-  def publish(queue: String): Subscriber[Message]
+  def publishDirectly(queue: String): Subscriber[Message]
 }
