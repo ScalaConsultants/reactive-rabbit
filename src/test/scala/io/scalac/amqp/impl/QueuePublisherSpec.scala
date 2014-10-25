@@ -18,7 +18,7 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   extends PublisherVerification[Delivery](env, publisherShutdownTimeout) with TestNGSuiteLike {
 
 
-  def callOnN(delegate: Publisher[Delivery], n: Long)(f: () => Unit) = new Publisher[Delivery] {
+  def callAfterN(delegate: Publisher[Delivery], n: Long)(f: () => Unit) = new Publisher[Delivery] {
     require(n > 0)
 
     override def subscribe(subscriber: Subscriber[_ >: Delivery]) =
@@ -51,7 +51,7 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
     connection.declare(Queue(name = name, exclusive = true))
     1L.to(elements).foreach(_ ⇒ channel.basicPublish("", name, props, Array[Byte]()))
 
-    callOnN(
+    callAfterN(
       delegate = connection.consume(name),
       n = elements)(() =>
       connection.deleteQueue(name))
