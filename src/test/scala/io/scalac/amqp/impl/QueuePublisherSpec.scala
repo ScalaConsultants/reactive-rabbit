@@ -62,9 +62,4 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
     conn.asInstanceOf[RabbitConnection].underlying.close()
     conn.consume("whatever")
   }
-
-  override def createPublisher1MustProduceAStreamOfExactly1Element() = ()
-  override def createPublisher3MustProduceAStreamOfExactly3Elements() = ()
-  override def spec105_mustSignalOnCompleteWhenFiniteStreamTerminates() = ()
-  override def spec107_mustNotEmitFurtherSignalsOnceOnCompleteHasBeenSignalled() = ()
 }
