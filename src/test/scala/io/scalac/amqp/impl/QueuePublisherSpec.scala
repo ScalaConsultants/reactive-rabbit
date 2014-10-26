@@ -46,9 +46,14 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   val connection = Connection()
   val channel = connection.asInstanceOf[RabbitConnection].underlying.createChannel()
 
-  override def createPublisher(elements: Long): Publisher[Delivery] = {
+  def declareQueueWithRandomName() = {
     val name = UUID.randomUUID().toString
     connection.declare(Queue(name = name, exclusive = true))
+    name
+  }
+
+  override def createPublisher(elements: Long): Publisher[Delivery] = {
+    val name = declareQueueWithRandomName()
     1L.to(elements).foreach(_ ⇒ channel.basicPublish("", name, props, Array[Byte]()))
 
     callAfterN(
@@ -61,5 +66,24 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
     val conn = Connection()
     conn.asInstanceOf[RabbitConnection].underlying.close()
     conn.consume("whatever")
+  }
+
+  override def spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() = {
+    val name = declareQueueWithRandomName()
+    val publisher = connection.consume(name)
+
+    val subscriber = new Subscriber[Delivery] {
+      override def onSubscribe(subscription: Subscription) =
+        subscription.request(Long.MaxValue)
+      override def onNext(delivery: Delivery) = ()
+      override def onError(t: Throwable) = ()
+      override def onComplete() = ()
+    }
+
+    publisher.subscribe(subscriber)
+
+    intercept[IllegalStateException] {
+      publisher.subscribe(subscriber)
+    }
   }
 }
