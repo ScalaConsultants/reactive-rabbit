@@ -2,7 +2,7 @@ import SonatypeKeys._
 
 sonatypeSettings
 
-name := "amqp"
+name := "reactive-rabbit"
 
 version := "0.1"
 
