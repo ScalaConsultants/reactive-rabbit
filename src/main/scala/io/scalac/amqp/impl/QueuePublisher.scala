@@ -11,6 +11,8 @@ import org.reactivestreams.{Subscriber, Publisher}
 
 private[amqp] class QueuePublisher(connection: Connection, queue: String, prefetch: Int = 20)
   extends Publisher[Delivery] {
+  require(prefetch > 0, "prefetch <= 0")
+
   val subscribers = Ref(Set[Subscriber[_ >: Delivery]]())
 
   override def subscribe(subscriber: Subscriber[_ >: Delivery]) =
