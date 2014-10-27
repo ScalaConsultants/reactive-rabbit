@@ -1,6 +1,7 @@
 package io.scalac.amqp.impl
 
 import scala.concurrent.stm.Ref
+import scala.util.control.NonFatal
 
 import com.rabbitmq.client.{ShutdownSignalException, ShutdownListener, Connection}
 
@@ -18,7 +19,7 @@ private[amqp] class QueuePublisher(connection: Connection, queue: String, prefet
   override def subscribe(subscriber: Subscriber[_ >: Delivery]) =
     subscribers.single.getAndTransform(_ + subscriber) match {
       case ss if ss.contains(subscriber) ⇒
-        throw new IllegalStateException(s"1.10: Subscriber=$subscriber is already subscribed to this publisher.")
+        throw new IllegalStateException(s"Rule 1.10: Subscriber=$subscriber is already subscribed to this publisher.")
       case _                             ⇒ try {
         val channel = connection.createChannel()
         channel.addShutdownListener(newShutdownListener(subscriber))
@@ -29,7 +30,7 @@ private[amqp] class QueuePublisher(connection: Connection, queue: String, prefet
         channel.basicQos(prefetch)
         channel.basicConsume(queue, false, subscription)
       } catch {
-        case exception: Exception ⇒ subscriber.onError(exception)
+        case NonFatal(exception) ⇒ subscriber.onError(exception)
       }
     }
 

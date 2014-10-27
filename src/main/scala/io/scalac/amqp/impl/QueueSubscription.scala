@@ -24,8 +24,8 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
   override def handleCancel(consumerTag: String) = try {
     subscriber.onComplete()
   } catch {
-    case exception: Exception ⇒
-      subscriber.onError(new IllegalStateException("Rule 2.13 violation", exception))
+    case NonFatal(exception) ⇒
+      subscriber.onError(new IllegalStateException("Rule 2.13: onComplete threw an exception", exception))
   }
 
   override def handleShutdownSignal(consumerTag: String, sig: ShutdownSignalException) = sig match {
@@ -94,7 +94,7 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
     channel.close()
   } catch {
     case _: AlreadyClosedException ⇒ // 3.7: nop
-    case exception: Exception      ⇒
+    case NonFatal(exception)       ⇒
       subscriber.onError(exception)
   }
 }

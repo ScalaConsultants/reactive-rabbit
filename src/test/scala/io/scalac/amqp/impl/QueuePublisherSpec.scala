@@ -17,7 +17,9 @@ import org.scalatest.testng.TestNGSuiteLike
 class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
   extends PublisherVerification[Delivery](env, publisherShutdownTimeout) with TestNGSuiteLike {
 
+  def this() = this(new TestEnvironment(600L), 1000L)
 
+  /** Calls a function after passing n messages. */
   def callAfterN(delegate: Publisher[Delivery], n: Long)(f: () ⇒ Unit) = new Publisher[Delivery] {
     require(n > 0)
 
@@ -26,7 +28,9 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
         val counter = new AtomicLong()
 
         override def onError(t: Throwable) = subscriber.onError(t)
+
         override def onSubscribe(s: Subscription) = subscriber.onSubscribe(s)
+
         override def onComplete() = subscriber.onComplete()
 
         override def onNext(t: Delivery) = {
@@ -34,13 +38,11 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
 
           counter.incrementAndGet() match {
             case `n` ⇒ f()
-            case _   ⇒ // maybe next time
+            case _ ⇒ // maybe next time
           }
         }
       })
   }
-
-  def this() = this(new TestEnvironment(600L), 1000L)
 
   val props = new AMQP.BasicProperties.Builder().build()
   val connection = Connection()
