@@ -94,7 +94,7 @@ final case class Message(
   /** Identifier of the application that produced the message. */
   appId: Option[String] = None) {
 
-  priority.foreach(priority =>
+  priority.foreach(priority ⇒
     require(priority >= PriorityMin && priority <= PriorityMax,
       s"priority < $PriorityMin || priority > $PriorityMax"))
 }

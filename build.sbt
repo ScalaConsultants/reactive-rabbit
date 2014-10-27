@@ -44,7 +44,7 @@ publishTo := {
 }
 
 pomIncludeRepository := {
-  x => false
+  x ⇒ false
 }
 
 pomExtra := (

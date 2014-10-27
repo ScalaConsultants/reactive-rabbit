@@ -25,9 +25,11 @@ object Queue {
     name: String,
     /** You may also specify a routing key to be used when dead-lettering messages.
       * If this is not set, the message's own routing keys will be used. */
-    key: Option[RoutingKey]) {
+    routingKey: Option[String]) {
 
     require(name.length <= 255, "name.length > 255")
+    routingKey.foreach(routingKey ⇒
+      require(routingKey.length <= 255, "routingKey.length > 255"))
   }
 }
 
@@ -98,7 +100,7 @@ final case class Queue(
     s"xMessageTtl < $XMessageTtlMin || xMessageTtl > $XMessageTtlMax")
   require(!xExpires.isFinite || xExpires >= XExpiresMin,
     s"xExpires < $XExpiresMin")
-  xMaxLength.foreach(xMaxLength =>
+  xMaxLength.foreach(xMaxLength ⇒
     require(xMaxLength >= XMaxLengthMin && xMaxLength <= XMaxLengthMax,
       s"xMaxLength < $XMaxLengthMin || xMaxLength > $XMaxLengthMax"))
 }

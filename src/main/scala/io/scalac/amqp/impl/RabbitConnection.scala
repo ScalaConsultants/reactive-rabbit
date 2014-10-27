@@ -34,10 +34,10 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     val channel = underlying.createChannel()
 
     val `type` = exchange.`type` match {
-      case Direct => "direct"
-      case Topic => "topic"
-      case Fanout => "fanout"
-      case Headers => "headers"
+      case Direct  ⇒ "direct"
+      case Topic   ⇒ "topic"
+      case Fanout  ⇒ "fanout"
+      case Headers ⇒ "headers"
     }
 
     val args = ImmutableMap.builder[String, Object]()
@@ -64,13 +64,12 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     }
 
     // RabbitMQ extension: Queue Length Limit
-    queue.xMaxLength.foreach(max => args.put("x-max-length", max.asInstanceOf[Object]))
+    queue.xMaxLength.foreach(max ⇒ args.put("x-max-length", max.asInstanceOf[Object]))
 
     // RabbitMQ extension: Dead Letter Exchange
-    queue.xDeadLetterExchange.foreach { exchange =>
+    queue.xDeadLetterExchange.foreach { exchange ⇒
       args.put("x-dead-letter-exchange", exchange.name)
-      exchange.key.foreach(key =>
-        args.put("x-dead-letter-routing-key", key.value))
+      exchange.routingKey.foreach(args.put("x-dead-letter-routing-key", _))
     }
 
     channel.queueDeclare(queue.name, queue.durable, queue.exclusive, queue.autoDelete, args.build())

@@ -49,7 +49,7 @@ private object Conversions {
       message = toMessage(properties, body),
       deliveryTag = DeliveryTag(envelope.getDeliveryTag),
       exchange = envelope.getExchange,
-      routingKey = RoutingKey(envelope.getRoutingKey),
+      routingKey = envelope.getRoutingKey,
       redeliver = envelope.isRedeliver)
 
   def toBasicProperties(message: Message): AMQP.BasicProperties = {
