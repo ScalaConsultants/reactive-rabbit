@@ -7,8 +7,9 @@ import java.util.concurrent.TimeUnit
 
 import akka.util.ByteString
 
+import com.google.common.collect.ImmutableMap
 import com.google.common.net.MediaType
-import com.rabbitmq.client.{Envelope, AMQP}
+import com.rabbitmq.client.{AMQP, ConnectionFactory, Envelope}
 
 import io.scalac.amqp._
 
@@ -16,6 +17,31 @@ import org.joda.time.DateTime
 
 
 private object Conversions {
+  def toConnectionFactory(settings: ConnectionSettings): ConnectionFactory = {
+    val factory = new ConnectionFactory()
+    factory.setVirtualHost(settings.virtualHost)
+    factory.setUsername(settings.username)
+    factory.setPassword(settings.password)
+
+    // the initially requested heartbeat interval, in seconds; zero for none
+    settings.heartbeat match {
+      case Some(interval) ⇒ factory.setRequestedHeartbeat(interval.toSeconds.toInt)
+      case None           ⇒ factory.setRequestedHeartbeat(0)
+    }
+
+    // connection establishment timeout in milliseconds; zero for infinite
+    settings.timeout match {
+      case finite if finite.isFinite ⇒ factory.setConnectionTimeout(finite.toMillis.toInt)
+      case _                         ⇒ factory.setConnectionTimeout(0)
+    }
+
+    // how long will automatic recovery wait before attempting to reconnect
+    factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis.toInt)
+
+    factory
+  }
+
+  /** Converts [[AMQP.BasicProperties]] and body to [[Message]] */
   def toMessage(properties: AMQP.BasicProperties, body: Array[Byte]): Message = {
     def toDeliveryMode(deliveryMode: Integer) = deliveryMode match {
       case mode: Integer if mode == 2 ⇒ Persistent
@@ -52,6 +78,7 @@ private object Conversions {
       routingKey = envelope.getRoutingKey,
       redeliver = envelope.isRedeliver)
 
+  /** Converts [[Message]] to [[AMQP.BasicProperties]]. */
   def toBasicProperties(message: Message): AMQP.BasicProperties = {
     def toDeliveryMode(mode: DeliveryMode) = mode match {
       case NonPersistent ⇒ Integer.valueOf(1)
@@ -78,5 +105,50 @@ private object Conversions {
       .userId(message.userId.orNull)
       .appId(message.appId.orNull)
       .build()
+  }
+
+  /** Converts [[Queue]] attributes to map of AMQP attributes that can be used to declare queue.
+    * This covers only RabbitMQ extensions. */
+  def toQueueArguments(queue: Queue): ImmutableMap[String, Object] = {
+    val builder = ImmutableMap.builder[String, Object]()
+
+    // RabbitMQ extension: Per-Queue Message TTL
+    if(queue.xMessageTtl.isFinite) {
+      builder.put("x-message-ttl", queue.xMessageTtl.toMillis.asInstanceOf[Object])
+    }
+
+    // RabbitMQ extension: Queue TTL
+    if(queue.xExpires.isFinite) {
+      builder.put("x-expires", queue.xExpires.toMillis.asInstanceOf[Object])
+    }
+
+    // RabbitMQ extension: Queue Length Limit
+    queue.xMaxLength.foreach(max ⇒ builder.put("x-max-length", max.asInstanceOf[Object]))
+
+    // RabbitMQ extension: Dead Letter Exchange
+    queue.xDeadLetterExchange.foreach { exchange ⇒
+      builder.put("x-dead-letter-exchange", exchange.name)
+      exchange.routingKey.foreach(builder.put("x-dead-letter-routing-key", _))
+    }
+
+    builder.build()
+  }
+
+  /** Converts [[Exchange]] attributes to map of AMQP attributes that can be used to declare exchange.
+    * This covers only RabbitMQ extensions. */
+  def toExchangeArguments(exchange: Exchange): ImmutableMap[String, Object] = {
+    val builder = ImmutableMap.builder[String, Object]()
+
+    // RabbitMQ extension: Alternate Exchange
+    exchange.xAlternateExchange.foreach(builder.put("alternate-exchange", _))
+    builder.build()
+  }
+
+  /** Maps case objects representing different exchange types to [[String]]. */
+  def toExchangeType(`type`: Type): String = `type` match {
+    case Direct  ⇒ "direct"
+    case Topic   ⇒ "topic"
+    case Fanout  ⇒ "fanout"
+    case Headers ⇒ "headers"
   }
 }
