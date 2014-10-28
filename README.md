@@ -3,6 +3,10 @@ Reactive Streams: AMQP
 
 Experimental implementation of [Reactive Streams](http://www.reactive-streams.org) for AMQP based on [RabbitMQ](https://www.rabbitmq.com/) library.
 
+Available at Maven Central:
+
+    libraryDependencies += "io.scalac" % "reactive-rabbit_2.11" % "0.1.0"
+
 Examples
 ----
 
