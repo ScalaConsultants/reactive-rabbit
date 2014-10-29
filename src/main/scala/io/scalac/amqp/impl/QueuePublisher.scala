@@ -10,8 +10,18 @@ import io.scalac.amqp.Delivery
 import org.reactivestreams.{Subscriber, Publisher}
 
 
-private[amqp] class QueuePublisher(connection: Connection, queue: String, prefetch: Int = 20)
-  extends Publisher[Delivery] {
+private[amqp] class QueuePublisher(
+  /** RabbitMQ library connection. */
+  connection: Connection,
+
+  /** Queue to consume from. */
+  queue: String,
+
+  /** Number of unacknowledged messages in the flight. It's beneficial to have this number higher
+    * than 1 due to improved throughput. Setting this number to high may increase memory usage -
+    * depending on average message size and speed of subscribers. */
+  prefetch: Int = 20) extends Publisher[Delivery] {
+
   require(prefetch > 0, "prefetch <= 0")
 
   val subscribers = Ref(Set[Subscriber[_ >: Delivery]]())

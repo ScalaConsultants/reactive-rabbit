@@ -4,6 +4,7 @@ import scala.collection.immutable.Queue
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.stm.{atomic, Ref}
+import scala.util.control.NonFatal
 
 import com.rabbitmq.client._
 import com.google.common.primitives.Ints.saturatedCast
@@ -12,13 +13,13 @@ import io.scalac.amqp.Delivery
 
 import org.reactivestreams.{Subscription, Subscriber}
 
-import scala.util.control.NonFatal
-
 
 private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_ >: Delivery])
   extends DefaultConsumer(channel) with Subscription {
 
   val demand = Ref(0L)
+
+  /** Number of messages stored in this buffer is limited by channel QOS. */
   val buffer = Ref(Queue[Delivery]())
 
   override def handleCancel(consumerTag: String) = try {
@@ -48,7 +49,7 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
       demand() match {
         case 0 ⇒ // no demand, store for later
           buffer.transform(_ :+ delivery)
-          Queue[Delivery]()
+          Queue()
         case d ⇒ // dequeue and decrease demand
           (buffer() :+ delivery).splitAt(saturatedCast(d)) match {
             case (head, tail) ⇒
