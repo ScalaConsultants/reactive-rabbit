@@ -52,10 +52,10 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
           Queue()
         case d ⇒ // dequeue and decrease demand
           (buffer() :+ delivery).splitAt(saturatedCast(d)) match {
-            case (head, tail) ⇒
-              buffer() = tail
-              demand -= head.size
-              head
+            case (ready, left) ⇒
+              buffer() = left
+              demand -= ready.size
+              ready
           }
       }
     }.foreach(deliver)
@@ -76,10 +76,10 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
               Queue()
             case d          ⇒
               buffer().splitAt(saturatedCast(d)) match {
-                case (head, tail) ⇒
-                  buffer() = tail
-                  demand -= head.size
-                  head
+                case (ready, left) ⇒
+                  buffer() = left
+                  demand -= ready.size
+                  ready
               }
           }
         }
