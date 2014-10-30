@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ConnectionSettingsSpec extends FlatSpec with Matchers {
   "apply" should "be able to load configuration from TypeSafe Config" in {
-    val settings = ConnectionSettings(ConfigFactory.load())
+    val settings = ConnectionSettings(ConfigFactory.load("reference.conf"))
     settings shouldBe ConnectionSettings(
       addresses = Seq(Address(host = "localhost", port = 5672)),
       virtualHost = "/",
