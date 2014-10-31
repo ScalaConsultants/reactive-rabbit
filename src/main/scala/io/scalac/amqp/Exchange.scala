@@ -15,10 +15,10 @@ final case class Exchange(
 
   /** If set, the exchange may not be used directly by publishers, but only when bound to other exchanges.
     * Internal exchanges are used to construct wiring that is not visible to applications. */
-  internal: Boolean,
+  internal: Boolean = false,
 
   /** Exchange is deleted when all queues have finished using it. */
-  autoDelete: Boolean,
+  autoDelete: Boolean = false,
 
   /** Whenever an exchange with a configured AE cannot route a message to any queue, it publishes the message
     * to the specified AE instead. If that AE does not exist then a warning is logged. If an AE cannot route
