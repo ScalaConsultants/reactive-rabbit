@@ -1,5 +1,7 @@
 package io.scalac.amqp.impl
 
+import scala.concurrent.duration._
+
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
@@ -14,10 +16,11 @@ import org.scalatest.testng.TestNGSuiteLike
 
 /** You need to have RabbitMQ server to run these tests.
   * Here you can get it: https://www.rabbitmq.com/download.html */
-class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
-  extends PublisherVerification[Delivery](env, publisherShutdownTimeout) with TestNGSuiteLike {
+class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeout: FiniteDuration)
+  extends PublisherVerification[Delivery](new TestEnvironment(defaultTimeout.toMillis),
+    publisherShutdownTimeout.toMillis) with TestNGSuiteLike {
 
-  def this() = this(new TestEnvironment(600L), 1000L)
+  def this() = this(600.millis, 1.second)
 
   /** Calls a function after passing n messages. */
   def callAfterN(delegate: Publisher[Delivery], n: Long)(f: () ⇒ Unit) = new Publisher[Delivery] {
@@ -28,9 +31,7 @@ class QueuePublisherSpec(env: TestEnvironment, publisherShutdownTimeout: Long)
         val counter = new AtomicLong()
 
         override def onError(t: Throwable) = subscriber.onError(t)
-
         override def onSubscribe(s: Subscription) = subscriber.onSubscribe(s)
-
         override def onComplete() = subscriber.onComplete()
 
         override def onNext(t: Delivery) = {
