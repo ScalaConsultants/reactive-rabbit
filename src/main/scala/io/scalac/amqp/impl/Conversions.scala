@@ -36,7 +36,7 @@ private object Conversions {
     }
 
     // how long will automatic recovery wait before attempting to reconnect
-    factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis.toInt)
+    factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis)
 
     factory
   }

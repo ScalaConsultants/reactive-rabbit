@@ -35,10 +35,6 @@ object ConnectionSettings {
   /** Maximum value for heartbeat interval. */
   val HeartbeatMax = Int.MaxValue.seconds
 
-  /** Maximum value for network recovery interval setting. */
-  val RecoveryIntervalMax = Int.MaxValue.millis
-
-
   /** Builds settings from TypeSafe Config. */
   def apply(config: Config): ConnectionSettings = apply(
     addresses = {
@@ -105,6 +101,4 @@ final case class ConnectionSettings(
   require(!timeout.isFinite ||
     timeout >= TimeoutMin && timeout <= TimeoutMax,
     s"timeout < $TimeoutMin || timeout > $TimeoutMax")
-
-  require(recoveryInterval <= RecoveryIntervalMax)
 }
