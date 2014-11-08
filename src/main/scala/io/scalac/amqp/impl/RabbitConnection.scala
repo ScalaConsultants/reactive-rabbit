@@ -1,6 +1,6 @@
 package io.scalac.amqp.impl
 
-import com.rabbitmq.client.{Address, Channel, ConnectionFactory}
+import com.rabbitmq.client.{Address, Channel}
 
 import io.scalac.amqp._
 
@@ -13,6 +13,23 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     new Address(address.host, address.port))(collection.breakOut)
 
   val underlying = factory.newConnection(addresses)
+
+
+  override def exchangeDeclare(exchange: Exchange) = ???
+  override def exchangeDeclarePassive(exchange: String) = ???
+  override def exchangeDelete(exchange: String, ifUnused: Boolean = false) = ???
+  override def exchangeBind(destination: String, source: String, routingKey: String) = ???
+  override def exchangeUnbind(destination: String, source: String, routingKey: String) = ???
+
+  override def queueDeclare(queue: Queue) = ???
+  override def queueDeclare() = ???
+  override def queueDeclarePassive(queue: String) = ???
+  override def queueDelete(queue: String, ifUnused: Boolean, ifEmpty: Boolean) = ???
+  override def queuePurge(queue: String) = ???
+  override def queueBind(queue: String, exchange: String, routingKey: String) = ???
+  override def queueUnbind(queue: String, exchange: String, routingKey: String) = ???
+
+
 
   def onChannel(f: Channel ⇒ Unit): Unit = {
     val channel = underlying.createChannel()

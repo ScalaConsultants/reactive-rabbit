@@ -6,6 +6,31 @@ import io.scalac.amqp.Queue._
 
 
 object Queue {
+  /** Notification received after queue is declared. */
+  final case class DeclareOk(
+    /** Name of declared queue. */
+    queue: String,
+    /** Number of messages stored in queue. */
+    messageCount: Int,
+    /** Number of connected consumers. */
+    consumerCount: Int)
+
+  /** Notification received after queue is deleted. */
+  final case class DeleteOk(
+    /** Number of messages removed together with the queue. */
+    messageCount: Int)
+
+  /** Notification received after queue binding is added. */
+  final case class BindOk()
+
+  /** Notification received after queue binding is removed. */
+  final case class UnbindOk()
+
+  /** Notification received after queue is purged. */
+  final case class PurgeOk(
+    /** Number of messages removed from the queue. */
+    messageCount: Int)
+
   /** Setting the TTL to 0 causes messages to be expired upon reaching a queue unless
     * they can be delivered to a consumer immediately. Thus this provides an alternative
     * to immediate flag, which the RabbitMQ server does not support. */
