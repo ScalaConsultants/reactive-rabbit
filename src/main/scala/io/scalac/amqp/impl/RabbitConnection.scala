@@ -1,6 +1,11 @@
 package io.scalac.amqp.impl
 
-import com.rabbitmq.client.{Address, Channel}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import java.io.IOException
+
+import com.rabbitmq.client.{AlreadyClosedException, Address, Channel}
 
 import io.scalac.amqp._
 
@@ -14,28 +19,86 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   val underlying = factory.newConnection(addresses)
 
-
-  override def exchangeDeclare(exchange: Exchange) = ???
-  override def exchangeDeclarePassive(exchange: String) = ???
-  override def exchangeDelete(exchange: String, ifUnused: Boolean = false) = ???
-  override def exchangeBind(destination: String, source: String, routingKey: String) = ???
-  override def exchangeUnbind(destination: String, source: String, routingKey: String) = ???
-
-  override def queueDeclare(queue: Queue) = ???
-  override def queueDeclare() = ???
-  override def queueDeclarePassive(queue: String) = ???
-  override def queueDelete(queue: String, ifUnused: Boolean, ifEmpty: Boolean) = ???
-  override def queuePurge(queue: String) = ???
-  override def queueBind(queue: String, exchange: String, routingKey: String) = ???
-  override def queueUnbind(queue: String, exchange: String, routingKey: String) = ???
-
-
-
-  def onChannel(f: Channel ⇒ Unit): Unit = {
+  def onChannel[T](f: Channel ⇒ T): T = {
     val channel = underlying.createChannel()
-    f(channel)
-    channel.close()
+    val result = f(channel)
+    try (channel.close()) catch {
+      case _: IOException | _: AlreadyClosedException ⇒ // don't care
+    }
+    result
   }
+
+  override def exchangeDeclare(exchange: Exchange) =
+    Future(onChannel(_.exchangeDeclare(
+      exchange.name,
+      Conversions.toExchangeType(exchange.`type`),
+      exchange.durable,
+      exchange.autoDelete,
+      exchange.internal,
+      Conversions.toExchangeArguments(exchange)))
+    ).map(_ ⇒ Exchange.DeclareOk())
+
+  override def exchangeDeclarePassive(exchange: String) =
+    Future(onChannel(_.exchangeDeclarePassive(exchange)))
+      .map(_ ⇒ Exchange.DeclareOk())
+
+  override def exchangeDelete(exchange: String, ifUnused: Boolean = false) =
+    Future(onChannel(_.exchangeDelete(exchange, ifUnused)))
+      .map(_ ⇒ Exchange.DeleteOk())
+
+  override def exchangeBind(destination: String, source: String, routingKey: String) =
+    Future(onChannel(_.exchangeBind(destination, source, routingKey)))
+      .map(_ ⇒ Exchange.BindOk())
+
+  override def exchangeUnbind(destination: String, source: String, routingKey: String) =
+    Future(onChannel(_.exchangeUnbind(destination, source, routingKey)))
+      .map(_ ⇒ Exchange.UnbindOk())
+
+  override def queueDeclare(queue: Queue) =
+    Future(onChannel(_.queueDeclare(
+      queue.name,
+      queue.durable,
+      queue.exclusive,
+      queue.autoDelete,
+      Conversions.toQueueArguments(queue)))
+    ).map(ok ⇒ Queue.DeclareOk(
+      queue = ok.getQueue,
+      messageCount = ok.getMessageCount,
+      consumerCount = ok.getConsumerCount
+    ))
+
+  override def queueDeclare() =
+    Future(onChannel(_.queueDeclare()))
+      .map(ok ⇒ Queue(
+        name = ok.getQueue,
+        durable = false,
+        exclusive = true,
+        autoDelete = true
+      ))
+
+  override def queueDeclarePassive(queue: String) =
+    Future(onChannel(_.queueDeclarePassive(queue)))
+      .map(ok ⇒ Queue.DeclareOk(
+        queue = ok.getQueue,
+        messageCount = ok.getMessageCount,
+        consumerCount = ok.getConsumerCount
+      ))
+
+  override def queueDelete(queue: String, ifUnused: Boolean, ifEmpty: Boolean) =
+    Future(onChannel(_.queueDelete(queue, ifUnused, ifEmpty)))
+      .map(ok ⇒ Queue.DeleteOk(ok.getMessageCount))
+
+  override def queuePurge(queue: String) =
+    Future(onChannel(_.queuePurge(queue)))
+      .map(ok ⇒ Queue.PurgeOk(ok.getMessageCount))
+
+  override def queueBind(queue: String, exchange: String, routingKey: String) =
+    Future(onChannel(_.queueBind(queue, exchange, routingKey)))
+      .map(_ ⇒ Queue.BindOk())
+
+  override def queueUnbind(queue: String, exchange: String, routingKey: String) =
+    Future(onChannel(_.queueUnbind(queue, exchange, routingKey)))
+      .map(_ ⇒ Queue.UnbindOk())
 
   def declare(exchange: Exchange) =
     onChannel(_.exchangeDeclare(
