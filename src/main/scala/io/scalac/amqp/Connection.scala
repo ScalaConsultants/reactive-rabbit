@@ -69,7 +69,7 @@ trait Connection {
     *
     * @param ifUnused true if the queue should be deleted only if not in use
     * @param ifEmpty  true if the queue should be deleted only if empty */
-  def queueDelete(queue: String, ifUnused: Boolean, ifEmpty: Boolean): Future[Queue.DeleteOk]
+  def queueDelete(queue: String, ifUnused: Boolean = false, ifEmpty: Boolean = false): Future[Queue.DeleteOk]
 
   /** Purges the contents of the given queue.
     *
