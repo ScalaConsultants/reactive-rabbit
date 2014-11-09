@@ -1,8 +1,8 @@
 package io.scalac.amqp.impl
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
 import com.rabbitmq.client.AMQP
@@ -49,20 +49,17 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
   val connection = Connection()
   val channel = connection.asInstanceOf[RabbitConnection].underlying.createChannel()
 
-  def declareQueueWithRandomName() = {
-    val name = UUID.randomUUID().toString
-    connection.declare(Queue(name = name, exclusive = true))
-    name
-  }
+  def declareQueue(): Queue = Await.result(connection.queueDeclare(), defaultTimeout)
+  def deleteQueue(queue: String): Unit = Await.ready(connection.queueDelete(queue), defaultTimeout)
+
 
   override def createPublisher(elements: Long): Publisher[Delivery] = {
-    val name = declareQueueWithRandomName()
-    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", name, props, Array[Byte]()))
+    val queue = declareQueue()
+    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue.name, props, Array[Byte]()))
 
     callAfterN(
-      delegate = connection.consume(name),
-      n = elements)(() ⇒
-      connection.deleteQueue(name))
+      delegate = connection.consume(queue.name),
+      n = elements)(() ⇒ deleteQueue(queue.name))
   }
 
   override def createErrorStatePublisher(): Publisher[Delivery] = {
@@ -72,8 +69,8 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
   }
 
   override def spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() = {
-    val name = declareQueueWithRandomName()
-    val publisher = connection.consume(name)
+    val queue = declareQueue()
+    val publisher = connection.consume(queue.name)
 
     val subscriber = new Subscriber[Delivery] {
       override def onSubscribe(subscription: Subscription) =
