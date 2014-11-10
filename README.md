@@ -29,24 +29,3 @@ implicit val materializer = FlowMaterializer()
 
 Source(queue).map(_.message).connect(Sink(exchange)).run()
 ```
-
-#### Reactive Streams
-
-```Scala
-import io.scalac.amqp.{Connection, Delivery}
-import org.reactivestreams.{Subscriber, Subscription}
-
-
-// streaming invoices to Accounting Department
-val connection = Connection()
-val queue = connection.consume(queue = "invoices")
-val exchange = connection.publish(exchange = "accounting_department",
-  routingKey = "invoices")
-
-queue.subscribe(new Subscriber[Delivery] {
-  override def onError(t: Throwable) = exchange.onError(t)
-  override def onSubscribe(s: Subscription) = exchange.onSubscribe(s)
-  override def onComplete() = exchange.onComplete()
-  override def onNext(t: Delivery) = exchange.onNext(t.message)
-})
-```
