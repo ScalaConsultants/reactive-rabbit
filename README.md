@@ -5,7 +5,7 @@ Experimental implementation of [Reactive Streams](http://www.reactive-streams.or
 
 Available at Maven Central:
 
-    libraryDependencies += "io.scalac" % "reactive-rabbit_2.11" % "0.1.0"
+    libraryDependencies += "io.scalac" % "reactive-rabbit_2.11" % "0.2.0"
 
 Examples
 ----
