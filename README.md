@@ -10,11 +10,12 @@ Available at Maven Central:
 Examples
 ----
 
-#### Akka Streams (0.9)
+#### Akka Streams (0.10)
 
 ```Scala
 import akka.actor.ActorSystem
-import akka.stream.scaladsl2.{FlowMaterializer, Sink, Source}
+import akka.stream.FlowMaterializer
+import akka.stream.scaladsl.{Sink, Source}
 import io.scalac.amqp.Connection
 
 
@@ -27,5 +28,5 @@ val exchange = connection.publish(exchange = "accounting_department",
 implicit val system = ActorSystem()
 implicit val materializer = FlowMaterializer()
 
-Source(queue).map(_.message).connect(Sink(exchange)).run()
+Source(queue).map(_.message).to(Sink(exchange)).run()
 ```
