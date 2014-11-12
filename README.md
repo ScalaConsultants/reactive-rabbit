@@ -5,7 +5,7 @@ Reactive Streams: AMQP
 
 Available at Maven Central:
 
-    libraryDependencies += "io.scalac" % "reactive-rabbit_2.11" % "0.2.0"
+    libraryDependencies += "io.scalac" % "reactive-rabbit_2.11" % "0.2.1"
 
 Example
 ----
