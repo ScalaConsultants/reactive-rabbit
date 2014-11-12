@@ -34,4 +34,6 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
 
   override def onComplete() =
     channel.close()
+
+  override def toString = s"ExchangeSubscriber(channel=$channel, exchange=$exchange)"
 }

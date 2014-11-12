@@ -20,6 +20,8 @@ final case class Address(
 
   require(port > 0 && port <= 65535,
     "port <= 0 || port > 65535")
+
+  override def toString = s"Address(host=$host, port=$port)"
 }
 
 object ConnectionSettings {
@@ -101,4 +103,8 @@ final case class ConnectionSettings(
   require(!timeout.isFinite ||
     timeout >= TimeoutMin && timeout <= TimeoutMax,
     s"timeout < $TimeoutMin || timeout > $TimeoutMax")
+
+  /** Returns a string representation of this. Password field is intentionally omitted. */
+  override def toString = s"ConnectionSettings(addresses=$addresses, virtualHost=$virtualHost, username=$username, " +
+    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval)"
 }

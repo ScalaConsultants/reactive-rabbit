@@ -34,7 +34,7 @@ private[amqp] class QueuePublisher(
         val channel = connection.createChannel()
         channel.addShutdownListener(newShutdownListener(subscriber))
 
-        val subscription = new QueueSubscription(channel, subscriber)
+        val subscription = new QueueSubscription(channel, queue, subscriber)
         subscriber.onSubscribe(subscription)
 
         channel.basicQos(prefetch)
@@ -48,4 +48,6 @@ private[amqp] class QueuePublisher(
     override def shutdownCompleted(cause: ShutdownSignalException) =
       subscribers.single.transform(_ - subscriber)
   }
+
+  override def toString = s"QueuePublisher(connection=$connection, queue=$queue, prefetch=$prefetch)"
 }

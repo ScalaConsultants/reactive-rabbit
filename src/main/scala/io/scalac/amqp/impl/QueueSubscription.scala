@@ -14,7 +14,7 @@ import io.scalac.amqp.Delivery
 import org.reactivestreams.{Subscription, Subscriber}
 
 
-private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_ >: Delivery])
+private[amqp] class QueueSubscription(channel: Channel, queue: String, subscriber: Subscriber[_ >: Delivery])
   extends DefaultConsumer(channel) with Subscription {
 
   val demand = Ref(0L)
@@ -97,5 +97,10 @@ private[amqp] class QueueSubscription(channel: Channel, subscriber: Subscriber[_
     case _: AlreadyClosedException ⇒ // 3.7: nop
     case NonFatal(exception)       ⇒
       subscriber.onError(exception)
+  }
+
+  override def toString() = atomic { implicit txn ⇒
+    s"QueueSubscription(channel=$channel, queue=$queue, subscriber=$subscriber, demand=${demand()}, " +
+      s"buffer.size=${buffer().size})"
   }
 }
