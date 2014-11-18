@@ -60,13 +60,16 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
 
   /** Queues are not finite in general. To simulate finite queues we remove queue after passing N messages.
     * This also tests if [[QueueSubscription.handleCancel]] works as intended. */
-  override def createPublisher(elements: Long): Publisher[Delivery] = {
-    val queue = declareQueue()
-    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue, props, Array[Byte]()))
+  override def createPublisher(elements: Long) = elements match {
+    case Long.MaxValue ⇒ sys.error("Queues are infinite in capacity but still it's hard to fill queue "
+                                    + "with infinite number of messages.")
+    case elements      ⇒
+      val queue = declareQueue()
+      1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue, props, Array[Byte]()))
 
-    callAfterN(
-      delegate = connection.consume(queue),
-      n = elements)(() ⇒ deleteQueue(queue))
+      callAfterN(
+        delegate = connection.consume(queue),
+        n = elements)(() ⇒ deleteQueue(queue))
   }
 
   override def createErrorStatePublisher(): Publisher[Delivery] = {
