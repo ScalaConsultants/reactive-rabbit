@@ -47,21 +47,26 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
 
   val props = new AMQP.BasicProperties.Builder().build()
   val connection = Connection()
+
+  /** Channel is used to populate queue with messages. It would be better to use [[ExchangeSubscriber]] for that. */
   val channel = connection.asInstanceOf[RabbitConnection].underlying.createChannel()
 
-  def declareQueue(): Queue = Await.result(connection.queueDeclare(), defaultTimeout)
-  def deleteQueue(queue: String): Unit = Await.ready(connection.queueDelete(queue), defaultTimeout)
+  /** Blocks until server-named, exclusive, auto-delete, non-durable queue is declared
+    * and returns name of that queue. */
+  def declareQueue(): String = Await.result(connection.queueDeclare(), defaultTimeout).name
 
+  /** Blocks until `queue` is deleted. */
+  def deleteQueue(queue: String): Unit = Await.ready(connection.queueDelete(queue), defaultTimeout)
 
   /** Queues are not finite in general. To simulate finite queues we remove queue after passing N messages.
     * This also tests if [[QueueSubscription.handleCancel]] works as intended. */
   override def createPublisher(elements: Long): Publisher[Delivery] = {
     val queue = declareQueue()
-    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue.name, props, Array[Byte]()))
+    1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue, props, Array[Byte]()))
 
     callAfterN(
-      delegate = connection.consume(queue.name),
-      n = elements)(() ⇒ deleteQueue(queue.name))
+      delegate = connection.consume(queue),
+      n = elements)(() ⇒ deleteQueue(queue))
   }
 
   override def createErrorStatePublisher(): Publisher[Delivery] = {
@@ -72,7 +77,7 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
 
   override def spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() = {
     val queue = declareQueue()
-    val publisher = connection.consume(queue.name)
+    val publisher = connection.consume(queue)
 
     val subscriber = new Subscriber[Delivery] {
       override def onSubscribe(subscription: Subscription) =
