@@ -1,11 +1,16 @@
 package io.scalac.amqp.impl
 
+import akka.actor.ActorSystem
+import akka.stream.FlowMaterializer
+import akka.stream.scaladsl.{PublisherSink, Source}
+
 import scala.concurrent.duration._
 
-import io.scalac.amqp.{Connection, Routed}
+import io.scalac.amqp.{Message, Connection, Routed}
 
 import org.reactivestreams.tck.{TestEnvironment, SubscriberBlackboxVerification}
 import org.scalatest.testng.TestNGSuiteLike
+import org.testng.annotations.AfterSuite
 
 
 class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends SubscriberBlackboxVerification[Routed](
@@ -14,14 +19,29 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
   def this() = this(300.millis)
 
   val connection = Connection()
+  implicit val system = ActorSystem()
+  implicit val mat = FlowMaterializer()
+
+  @AfterSuite def cleanup() = system.shutdown()
 
   override def createSubscriber() =
     connection.publish("nowhere")
 
-  override def createHelperPublisher(elements: Long) = ???
+  val message = Routed(routingKey = "foo", message = Message())
 
-  override def spec201_blackbox_mustSignalDemandViaSubscriptionRequest() = notVerified()
+  def createHelperSource(elements: Long): Source[Routed] = elements match {
+    /** if `elements` is 0 the `Publisher` should signal `onComplete` immediately. */
+    case 0                      ⇒ Source.empty()
+    /** if `elements` is [[Long.MaxValue]] the produced stream must be infinite. */
+    case Long.MaxValue          ⇒ Source(() ⇒ Some(message))
+    /** It must create a `Publisher` for a stream with exactly the given number of elements. */
+    case n if n <= Int.MaxValue ⇒ Source(List.fill(n.toInt)(message))
+    /** I assume that the number of elements is always less or equal to [[Int.MaxValue]] */
+    case n                      ⇒ sys.error("n > Int.MaxValue")
+  }
+
+  override def createHelperPublisher(elements: Long) =
+    createHelperSource(elements).runWith(PublisherSink())
+
   override def spec205_blackbox_mustCallSubscriptionCancelIfItAlreadyHasAnSubscriptionAndReceivesAnotherOnSubscribeSignal() = notVerified()
-  override def spec209_blackbox_mustBePreparedToReceiveAnOnCompleteSignalWithPrecedingRequestCall() = notVerified()
-  override def spec210_blackbox_mustBePreparedToReceiveAnOnErrorSignalWithPrecedingRequestCall() = notVerified()
 }

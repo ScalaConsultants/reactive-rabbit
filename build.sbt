@@ -30,7 +30,8 @@ libraryDependencies ++= Seq(
   "com.google.code.findbugs" % "jsr305" % "3.0.0",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test", // for TCK
   "com.google.inject" % "guice" % "3.0" % "test",    // to make sbt happy
-  "org.reactivestreams" % "reactive-streams-tck" % "0.4.0" % "test"
+  "org.reactivestreams" % "reactive-streams-tck" % "0.4.0" % "test",
+  "com.typesafe.akka" %% "akka-stream-experimental" % "0.11" % "test"
 )
 
 publishMavenStyle := true
