@@ -24,8 +24,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   @AfterSuite def cleanup() = system.shutdown()
 
-  override def createSubscriber() =
-    connection.publish("nowhere")
+  override def createSubscriber() = connection.publish("nowhere")
 
   val message = Routed(routingKey = "foo", message = Message())
 
@@ -40,8 +39,5 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
     case n                      ⇒ sys.error("n > Int.MaxValue")
   }
 
-  override def createHelperPublisher(elements: Long) =
-    createHelperSource(elements).runWith(PublisherSink())
-
-  override def spec205_blackbox_mustCallSubscriptionCancelIfItAlreadyHasAnSubscriptionAndReceivesAnotherOnSubscribeSignal() = notVerified()
+  override def createHelperPublisher(elements: Long) = createHelperSource(elements).runWith(PublisherSink())
 }

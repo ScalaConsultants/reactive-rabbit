@@ -13,12 +13,13 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
   extends Subscriber[Routed] {
   require(exchange.length <= 255, "exchange.length > 255")
 
-  val subscription = new AtomicReference[Subscription]()
+  val active = new AtomicReference[Subscription]()
 
-  override def onSubscribe(subscription: Subscription) = {
-    this.subscription.set(subscription)
-    subscription.request(1)
-  }
+  override def onSubscribe(subscription: Subscription) =
+    active.compareAndSet(null, subscription) match {
+      case true  ⇒ subscription.request(1)
+      case false ⇒ subscription.cancel() // 2.5: cancel
+    }
 
   override def onNext(routed: Routed) = {
     channel.basicPublish(
@@ -26,14 +27,14 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
       routed.routingKey,
       Conversions.toBasicProperties(routed.message),
       routed.message.body.toArray)
-    subscription.get().request(1)
+    active.get().request(1)
   }
 
-  override def onError(t: Throwable) =
-    channel.close()
+  /** Our life cycle is bounded to underlying `Channel`. */
+  override def onError(t: Throwable) = channel.close()
 
-  override def onComplete() =
-    channel.close()
+  /** Our life cycle is bounded to underlying `Channel`. */
+  override def onComplete() = channel.close()
 
   override def toString = s"ExchangeSubscriber(channel=$channel, exchange=$exchange)"
 }
