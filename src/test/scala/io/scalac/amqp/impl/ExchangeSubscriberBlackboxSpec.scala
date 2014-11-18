@@ -20,8 +20,8 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   override def createHelperPublisher(elements: Long) = ???
 
-  override def spec201_blackbox_mustSignalDemandViaSubscriptionRequest() = ()
-  override def spec205_blackbox_mustCallSubscriptionCancelIfItAlreadyHasAnSubscriptionAndReceivesAnotherOnSubscribeSignal() = ()
-  override def spec209_blackbox_mustBePreparedToReceiveAnOnCompleteSignalWithPrecedingRequestCall() = ()
-  override def spec210_blackbox_mustBePreparedToReceiveAnOnErrorSignalWithPrecedingRequestCall() = ()
+  override def spec201_blackbox_mustSignalDemandViaSubscriptionRequest() = notVerified()
+  override def spec205_blackbox_mustCallSubscriptionCancelIfItAlreadyHasAnSubscriptionAndReceivesAnotherOnSubscribeSignal() = notVerified()
+  override def spec209_blackbox_mustBePreparedToReceiveAnOnCompleteSignalWithPrecedingRequestCall() = notVerified()
+  override def spec210_blackbox_mustBePreparedToReceiveAnOnErrorSignalWithPrecedingRequestCall() = notVerified()
 }
