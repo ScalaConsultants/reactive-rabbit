@@ -53,6 +53,8 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
   def deleteQueue(queue: String): Unit = Await.ready(connection.queueDelete(queue), defaultTimeout)
 
 
+  /** Queues are not finite in general. To simulate finite queues we remove queue after passing N messages.
+    * This also tests if [[QueueSubscription.handleCancel]] works as intended. */
   override def createPublisher(elements: Long): Publisher[Delivery] = {
     val queue = declareQueue()
     1L.to(elements).foreach(_ ⇒ channel.basicPublish("", queue.name, props, Array[Byte]()))
