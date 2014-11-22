@@ -1,11 +1,11 @@
 package io.scalac.amqp.impl
 
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl.{Source, Sink}
-
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import java.io.IOException
 import java.util.UUID
@@ -14,9 +14,13 @@ import io.scalac.amqp._
 
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Span, Millis}
 
 
 class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
+  implicit override val patienceConfig =
+    PatienceConfig(timeout = Span(500, Millis), interval = Span(50, Millis))
+
   val connection = Connection()
   implicit val system = ActorSystem()
   implicit val mat = FlowMaterializer()
