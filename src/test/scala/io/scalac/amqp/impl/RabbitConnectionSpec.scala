@@ -1,22 +1,28 @@
 package io.scalac.amqp.impl
 
+import akka.actor.ActorSystem
+import akka.stream.FlowMaterializer
+import akka.stream.scaladsl.{Source, Sink}
+
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import java.io.IOException
-
 import java.util.UUID
-import java.util.concurrent.CountDownLatch
 
 import io.scalac.amqp._
 
-import org.reactivestreams.{Subscription, Subscriber}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
 
 
-class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures {
+class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
   val connection = Connection()
+  implicit val system = ActorSystem()
+  implicit val mat = FlowMaterializer()
+
+  override def afterAll() = system.shutdown()
+
 
   "queueDeclare" should "declare server-named, exclusive, auto-delete, non-durable queue" in {
     connection.queueDeclare().futureValue should have (
@@ -54,18 +60,10 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures {
   }
 
   it should "return number of consumers" in {
-    val name = UUID.randomUUID().toString
-    connection.queueDeclare(Queue(name = name, exclusive = true)).flatMap { ok ⇒
-      val latch = new CountDownLatch(1)
-      connection.consume(name).subscribe(new Subscriber[Delivery] {
-        override def onError(t: Throwable) = ()
-        override def onSubscribe(s: Subscription) = latch.countDown()
-        override def onComplete() = ()
-        override def onNext(t: Delivery) = ()
-      })
-
-      latch.await() // wait until consumer subscribes
-      connection.queueDeclare(Queue(name = name, exclusive = true))
+    val queue = Queue(name = UUID.randomUUID().toString, exclusive = true)
+    connection.queueDeclare(queue).flatMap { _ ⇒
+      Source(connection.consume(queue.name)).to(Sink.ignore).run()
+      connection.queueDeclare(queue)
     }.futureValue should have (
       'consumerCount (1)
     )
