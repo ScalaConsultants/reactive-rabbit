@@ -90,26 +90,6 @@ trait Connection {
     * @param routingKey the routine key to use for the binding */
   def queueUnbind(queue: String, exchange: String, routingKey: String): Future[Queue.UnbindOk]
 
-  /** Declare an exchange. */
-  @throws[IOException]
-  @deprecated("Will be removed in 0.3.0", "0.2.0")
-  def declare(exchange: Exchange): Unit
-
-  /** Declare a queue. */
-  @throws[IOException]
-  @deprecated("Will be removed in 0.3.0", "0.2.0")
-  def declare(queue: Queue): Unit
-
-  /** Delete a queue, without regard for whether it is in use or has messages on it. */
-  @throws[IOException]
-  @deprecated("Will be removed in 0.3.0", "0.2.0")
-  def deleteQueue(name: String): Unit
-
-  /** Delete an exchange, without regard for whether it is in use or not. */
-  @throws[IOException]
-  @deprecated("Will be removed in 0.3.0", "0.2.0")
-  def deleteExchange(name: String): Unit
-
   def consume(queue: String): Publisher[Delivery]
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]

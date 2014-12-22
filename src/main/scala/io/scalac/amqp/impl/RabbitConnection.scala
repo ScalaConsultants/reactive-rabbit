@@ -109,20 +109,6 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       exchange.internal,
       Conversions.toExchangeArguments(exchange)))
 
-  override def declare(queue: Queue) =
-    onChannel(_.queueDeclare(
-      queue.name,
-      queue.durable,
-      queue.exclusive,
-      queue.autoDelete,
-      Conversions.toQueueArguments(queue)))
-
-  override def deleteQueue(name: String) =
-    onChannel(_.queueDelete(name))
-
-  override def deleteExchange(name: String) =
-    onChannel(_.exchangeDelete(name))
-
   override def consume(queue: String) =
     new QueuePublisher(underlying, queue)
 
