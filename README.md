@@ -12,7 +12,7 @@ Available at Maven Central:
 Example
 ----
 
-#### Akka Streams - 0.10
+#### Akka Streams - 0.11
 
 ```Scala
 import akka.actor.ActorSystem
