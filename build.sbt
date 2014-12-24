@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.2.1",               // Configuration
   "joda-time" % "joda-time" % "2.6",                 // for DateTime
   "org.joda" % "joda-convert" % "1.7",
-  "com.typesafe.akka" %% "akka-actor" % "2.3.7",     // for ByteString
+  "com.typesafe.akka" %% "akka-actor" % "2.3.8",     // for ByteString
   "com.google.guava" % "guava" % "18.0",             // for MediaType
   "com.google.code.findbugs" % "jsr305" % "3.0.0",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test", // for TCK
