@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import com.rabbitmq.client.AMQP
 
-import io.scalac.amqp.{Connection, Delivery, Queue}
+import io.scalac.amqp.{Connection, Delivery}
 
 import org.reactivestreams.tck.{PublisherVerification, TestEnvironment}
 import org.reactivestreams.{Subscription, Subscriber, Publisher}
@@ -21,6 +21,7 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
     publisherShutdownTimeout.toMillis) with TestNGSuiteLike {
 
   def this() = this(600.millis, 1.second)
+  override val maxElementsFromPublisher = 1000L
 
   /** Calls a function after passing n messages. */
   def callAfterN(delegate: Publisher[Delivery], n: Long)(f: () ⇒ Unit) = new Publisher[Delivery] {

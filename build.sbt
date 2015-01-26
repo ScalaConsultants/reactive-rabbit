@@ -21,19 +21,19 @@ crossScalaVersions := Seq("2.10.4", "2.11.5")
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
 libraryDependencies ++= Seq(
-  "org.reactivestreams"      %  "reactive-streams"         % "0.4.0",
+  "org.reactivestreams"      %  "reactive-streams"         % "1.0.0.RC1",
   "com.rabbitmq"             %  "amqp-client"              % "3.4.3",
   "org.scala-stm"            %% "scala-stm"                % "0.7",
-  "com.typesafe"             %  "config"                   % "1.2.1",          // Configuration
-  "joda-time"                %  "joda-time"                % "2.7",            // for DateTime
+  "com.typesafe"             %  "config"                   % "1.2.1",              // Configuration
+  "joda-time"                %  "joda-time"                % "2.7",                // for DateTime
   "org.joda"                 %  "joda-convert"             % "1.7",
-  "com.typesafe.akka"        %% "akka-actor"               % "2.3.9",          // for ByteString
-  "com.google.guava"         %  "guava"                    % "18.0",           // for MediaType
+  "com.typesafe.akka"        %% "akka-actor"               % "2.3.9",              // for ByteString
+  "com.google.guava"         %  "guava"                    % "18.0",               // for MediaType
   "com.google.code.findbugs" %  "jsr305"                   % "3.0.0",
-  "org.scalatest"            %% "scalatest"                % "2.2.1" % "test", // for TCK
-  "com.google.inject"        %  "guice"                    % "3.0"   % "test", // to make sbt happy
-  "org.reactivestreams"      %  "reactive-streams-tck"     % "0.4.0" % "test",
-  "com.typesafe.akka"        %% "akka-stream-experimental" % "0.11"  % "test"
+  "org.scalatest"            %% "scalatest"                % "2.2.3"     % "test", // for TCK
+  "com.google.inject"        %  "guice"                    % "3.0"       % "test", // to make sbt happy
+  "org.reactivestreams"      %  "reactive-streams-tck"     % "1.0.0.RC1" % "test",
+  "com.typesafe.akka"        %% "akka-stream-experimental" % "1.0-M2"    % "test"
 )
 
 publishMavenStyle := true

@@ -34,9 +34,14 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     case _                                    ⇒ // shutdown initiated by us
   }
 
-  def deliver(delivery: Delivery): Unit = {
-    subscriber.onNext(delivery)
-    channel.basicAck(delivery.deliveryTag.underlying, false)
+  def deliver(delivery: Delivery): Unit = try {
+    if(channel.isOpen()) {
+      subscriber.onNext(delivery)
+      channel.basicAck(delivery.deliveryTag.underlying, false)
+    }
+  } catch {
+    case NonFatal(exception) ⇒
+      subscriber.onError(exception)
   }
 
   override def handleDelivery(consumerTag: String,
@@ -61,35 +66,39 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     }.foreach(deliver)
   }
 
-  override def request(n: Long) =
-    channel.isOpen() match {
-      case true ⇒
-        require(n > 0, "Rule 3.9: n <= 0")
+  override def request(n: Long) = n match {
+    case n if n <= 0           ⇒
+      try (channel.close()) catch {
+        case NonFatal(_) ⇒ // mute
+      }
+      subscriber.onError(new IllegalArgumentException("Rule 3.9: n <= 0"))
 
-        val buffered = atomic { implicit txn ⇒
-          demand.transformAndGet(_ + n) match {
-            case d if d < 0 ⇒ // 3.17: overflow
-              try (channel.close()) catch {
-                case NonFatal(_) ⇒ // mute
-              }
-              subscriber.onError(new IllegalStateException("Rule 3.17: Pending + n > Long.MaxValue"))
-              Queue()
-            case d          ⇒
-              buffer().splitAt(saturatedCast(d)) match {
-                case (ready, left) ⇒
-                  buffer() = left
-                  demand -= ready.size
-                  ready
-              }
-          }
+    case n if channel.isOpen() ⇒
+      val buffered = atomic { implicit txn ⇒
+        demand.transformAndGet(_ + n) match {
+          case d if d < 0 ⇒ // 3.17: overflow
+            try (channel.close()) catch {
+              case NonFatal(_) ⇒ // mute
+            }
+            subscriber.onError(new IllegalStateException("Rule 3.17: Pending + n > Long.MaxValue"))
+            Queue()
+          case d          ⇒
+            buffer().splitAt(saturatedCast(d)) match {
+              case (ready, left) ⇒
+                buffer() = left
+                demand -= ready.size
+                ready
+            }
         }
+      }
 
-        if (!buffered.isEmpty) {
-          // 3.3: must continue somewhere else to prevent unbounded recursion
-          Future(buffered.foreach(deliver))
-        }
-      case _    ⇒ // 3.6: nop
-    }
+      if (!buffered.isEmpty) {
+        // 3.3: must continue somewhere else to prevent unbounded recursion
+        Future(buffered.foreach(deliver))
+      }
+
+    case _                     ⇒ // 3.6: nop
+  }
 
   override def cancel() = try {
     channel.close()

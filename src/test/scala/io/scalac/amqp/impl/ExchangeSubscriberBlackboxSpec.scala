@@ -1,10 +1,10 @@
 package io.scalac.amqp.impl
 
+import scala.concurrent.duration._
+
 import akka.actor.ActorSystem
 import akka.stream.FlowMaterializer
 import akka.stream.scaladsl.{PublisherSink, Source}
-
-import scala.concurrent.duration._
 
 import io.scalac.amqp.{Message, Connection, Routed}
 
@@ -32,7 +32,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
     /** if `elements` is 0 the `Publisher` should signal `onComplete` immediately. */
     case 0                      ⇒ Source.empty()
     /** if `elements` is [[Long.MaxValue]] the produced stream must be infinite. */
-    case Long.MaxValue          ⇒ Source(() ⇒ Some(message))
+    case Long.MaxValue          ⇒ Source(() ⇒ Iterator.continually(message))
     /** It must create a `Publisher` for a stream with exactly the given number of elements. */
     case n if n <= Int.MaxValue ⇒ Source(List.fill(n.toInt)(message))
     /** I assume that the number of elements is always less or equal to [[Int.MaxValue]] */
