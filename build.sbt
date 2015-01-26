@@ -14,20 +14,20 @@ licenses := Seq("Apache License 2.0" -> url("http://opensource.org/licenses/Apac
 
 homepage := Some(url("https://github.com/ScalaConsultants/reactive-rabbit"))
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.5"
 
-crossScalaVersions := Seq("2.10.4", "2.11.4")
+crossScalaVersions := Seq("2.10.4", "2.11.5")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
 libraryDependencies ++= Seq(
   "org.reactivestreams" % "reactive-streams" % "0.4.0",
-  "com.rabbitmq" % "amqp-client" % "3.4.2",
+  "com.rabbitmq" % "amqp-client" % "3.4.3",
   "org.scala-stm" %% "scala-stm" % "0.7",
   "com.typesafe" % "config" % "1.2.1",               // Configuration
-  "joda-time" % "joda-time" % "2.6",                 // for DateTime
+  "joda-time" % "joda-time" % "2.7",                 // for DateTime
   "org.joda" % "joda-convert" % "1.7",
-  "com.typesafe.akka" %% "akka-actor" % "2.3.8",     // for ByteString
+  "com.typesafe.akka" %% "akka-actor" % "2.3.9",     // for ByteString
   "com.google.guava" % "guava" % "18.0",             // for MediaType
   "com.google.code.findbugs" % "jsr305" % "3.0.0",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test", // for TCK
