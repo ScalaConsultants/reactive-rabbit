@@ -1,5 +1,6 @@
 package io.scalac.amqp.impl
 
+import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -46,8 +47,9 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     Future(onChannel(_.exchangeDelete(exchange, ifUnused)))
       .map(_ ⇒ Exchange.DeleteOk())
 
-  override def exchangeBind(destination: String, source: String, routingKey: String) =
-    Future(onChannel(_.exchangeBind(destination, source, routingKey)))
+  override def exchangeBind(destination: String, source: String, routingKey: String,
+                            arguments: Map[String, AnyRef]) =
+    Future(onChannel(_.exchangeBind(destination, source, routingKey, arguments)))
       .map(_ ⇒ Exchange.BindOk())
 
   override def exchangeUnbind(destination: String, source: String, routingKey: String) =
@@ -92,8 +94,9 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     Future(onChannel(_.queuePurge(queue)))
       .map(ok ⇒ Queue.PurgeOk(ok.getMessageCount))
 
-  override def queueBind(queue: String, exchange: String, routingKey: String) =
-    Future(onChannel(_.queueBind(queue, exchange, routingKey)))
+  override def queueBind(queue: String, exchange: String, routingKey: String,
+                         arguments: Map[String, AnyRef]) =
+    Future(onChannel(_.queueBind(queue, exchange, routingKey, arguments)))
       .map(_ ⇒ Queue.BindOk())
 
   override def queueUnbind(queue: String, exchange: String, routingKey: String) =

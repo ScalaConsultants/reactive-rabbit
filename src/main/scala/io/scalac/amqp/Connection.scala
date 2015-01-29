@@ -43,8 +43,10 @@ trait Connection {
     *
     * @param destination the name of the exchange to which messages flow across the binding
     * @param source      the name of the exchange from which messages flow across the binding
-    * @param routingKey  the routine key to use for the binding */
-  def exchangeBind(destination: String, source: String, routingKey: String): Future[Exchange.BindOk]
+    * @param routingKey  the routine key to use for the binding
+    * @param arguments   other properties (binding parameters) */
+  def exchangeBind(destination: String, source: String, routingKey: String,
+                   arguments: Map[String, AnyRef] = Map.empty): Future[Exchange.BindOk]
 
   /** Unbind an exchange from an exchange.
     *
@@ -80,8 +82,10 @@ trait Connection {
     *
     * @param queue      the name of the queue
     * @param exchange   the name of the exchange
-    * @param routingKey the routine key to use for the binding */
-  def queueBind(queue: String, exchange: String, routingKey: String): Future[Queue.BindOk]
+    * @param routingKey the routine key to use for the binding
+    * @param arguments  other properties (binding parameters) */
+  def queueBind(queue: String, exchange: String, routingKey: String,
+                arguments: Map[String, AnyRef] = Map.empty): Future[Queue.BindOk]
 
   /** Unbind a queue from an exchange.
     *
