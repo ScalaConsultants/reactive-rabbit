@@ -4,7 +4,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.ActorSystem
-import akka.stream.FlowMaterializer
+import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.{Source, Sink}
 
 import java.io.IOException
@@ -23,7 +23,7 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
 
   val connection = Connection()
   implicit val system = ActorSystem()
-  implicit val mat = FlowMaterializer()
+  implicit val mat = ActorFlowMaterializer()
 
   override def afterAll() = system.shutdown()
 

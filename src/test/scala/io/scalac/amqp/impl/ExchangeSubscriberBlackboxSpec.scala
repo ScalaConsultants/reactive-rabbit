@@ -3,8 +3,8 @@ package io.scalac.amqp.impl
 import scala.concurrent.duration._
 
 import akka.actor.ActorSystem
-import akka.stream.FlowMaterializer
-import akka.stream.scaladsl.{PublisherSink, Source}
+import akka.stream.ActorFlowMaterializer
+import akka.stream.scaladsl.{Source, Sink}
 
 import io.scalac.amqp.{Message, Connection, Routed}
 
@@ -20,7 +20,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   val connection = Connection()
   implicit val system = ActorSystem()
-  implicit val mat = FlowMaterializer()
+  implicit val mat = ActorFlowMaterializer()
 
   @AfterSuite def cleanup() = system.shutdown()
 
@@ -28,7 +28,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   val message = Routed(routingKey = "foo", message = Message())
 
-  def createHelperSource(elements: Long): Source[Routed] = elements match {
+  def createHelperSource(elements: Long): Source[Routed, Unit] = elements match {
     /** if `elements` is 0 the `Publisher` should signal `onComplete` immediately. */
     case 0                      ⇒ Source.empty()
     /** if `elements` is [[Long.MaxValue]] the produced stream must be infinite. */
@@ -39,5 +39,5 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
     case n                      ⇒ sys.error("n > Int.MaxValue")
   }
 
-  override def createHelperPublisher(elements: Long) = createHelperSource(elements).runWith(PublisherSink())
+  override def createHelperPublisher(elements: Long) = createHelperSource(elements).runWith(Sink.publisher())
 }
