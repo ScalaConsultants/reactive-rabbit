@@ -30,7 +30,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   def createHelperSource(elements: Long): Source[Routed, Unit] = elements match {
     /** if `elements` is 0 the `Publisher` should signal `onComplete` immediately. */
-    case 0                      ⇒ Source.empty()
+    case 0                      ⇒ Source.empty
     /** if `elements` is [[Long.MaxValue]] the produced stream must be infinite. */
     case Long.MaxValue          ⇒ Source(() ⇒ Iterator.continually(message))
     /** It must create a `Publisher` for a stream with exactly the given number of elements. */
@@ -39,5 +39,6 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
     case n                      ⇒ sys.error("n > Int.MaxValue")
   }
 
-  override def createHelperPublisher(elements: Long) = createHelperSource(elements).runWith(Sink.publisher())
+  override def createHelperPublisher(elements: Long) = createHelperSource(elements).runWith(Sink.publisher)
+  override def createElement(element: Int) = message
 }

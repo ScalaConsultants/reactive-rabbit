@@ -2,6 +2,7 @@ package io.scalac.amqp.impl
 
 import java.util.concurrent.atomic.AtomicReference
 
+import com.google.common.base.Preconditions.checkNotNull
 import com.rabbitmq.client.Channel
 
 import io.scalac.amqp.Routed
@@ -31,7 +32,10 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
   }
 
   /** Our life cycle is bounded to underlying `Channel`. */
-  override def onError(t: Throwable) = channel.close()
+  override def onError(t: Throwable) = {
+    checkNotNull(t)
+    channel.close()
+  }
 
   /** Our life cycle is bounded to underlying `Channel`. */
   override def onComplete() = channel.close()

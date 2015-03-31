@@ -5,6 +5,8 @@ import scala.concurrent.duration._
 
 import java.util.concurrent.atomic.AtomicLong
 
+import akka.stream.scaladsl.{Source, Sink}
+
 import com.rabbitmq.client.AMQP
 
 import io.scalac.amqp.{Connection, Delivery}
@@ -25,8 +27,6 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
 
   /** Calls a function after passing n messages. */
   def callAfterN(delegate: Publisher[Delivery], n: Long)(f: () ⇒ Unit) = new Publisher[Delivery] {
-    require(n > 0)
-
     override def subscribe(subscriber: Subscriber[_ >: Delivery]) =
       delegate.subscribe(new Subscriber[Delivery] {
         val counter = new AtomicLong()
@@ -79,7 +79,7 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
     conn.consume("whatever")
   }
 
-  override def spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() = {
+  override def untested_spec110_rejectASubscriptionRequestIfTheSameSubscriberSubscribesTwice() = {
     val queue = declareQueue()
     val publisher = connection.consume(queue)
 

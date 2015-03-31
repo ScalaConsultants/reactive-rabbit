@@ -1,6 +1,7 @@
 package io.scalac.amqp.impl
 
 import scala.concurrent.stm.Ref
+import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
 
 import com.rabbitmq.client.{ShutdownSignalException, ShutdownListener, Connection}
@@ -30,18 +31,24 @@ private[amqp] class QueuePublisher(
     subscribers.single.getAndTransform(_ + subscriber) match {
       case ss if ss.contains(subscriber) ⇒
         throw new IllegalStateException(s"Rule 1.10: Subscriber=$subscriber is already subscribed to this publisher.")
-      case _                             ⇒ try {
-        val channel = connection.createChannel()
-        channel.addShutdownListener(newShutdownListener(subscriber))
+      case _ ⇒
+        Try(connection.createChannel()) match {
+          case Success(channel) ⇒
+            channel.addShutdownListener(newShutdownListener(subscriber))
+            val subscription = new QueueSubscription(channel, queue, subscriber)
 
-        val subscription = new QueueSubscription(channel, queue, subscriber)
-        subscriber.onSubscribe(subscription)
+            try {
+              subscriber.onSubscribe(subscription)
+              channel.basicQos(prefetch)
+              channel.basicConsume(queue, false, subscription)
+            } catch {
+              case NonFatal(exception) ⇒ subscriber.onError(exception)
+            }
 
-        channel.basicQos(prefetch)
-        channel.basicConsume(queue, false, subscription)
-      } catch {
-        case NonFatal(exception) ⇒ subscriber.onError(exception)
-      }
+          case Failure(cause) ⇒
+            subscriber.onSubscribe(CanceledSubscription)
+            subscriber.onError(cause)
+        }
     }
 
   def newShutdownListener(subscriber: Subscriber[_ >: Delivery]) = new ShutdownListener {

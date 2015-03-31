@@ -36,8 +36,8 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
   def deliver(delivery: Delivery): Unit = try {
     if(channel.isOpen()) {
-      subscriber.onNext(delivery)
       channel.basicAck(delivery.deliveryTag.underlying, false)
+      subscriber.onNext(delivery)
     }
   } catch {
     case NonFatal(exception) ⇒
