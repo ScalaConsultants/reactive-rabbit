@@ -5,8 +5,6 @@ import scala.concurrent.duration._
 
 import java.util.concurrent.atomic.AtomicLong
 
-import akka.stream.scaladsl.{Source, Sink}
-
 import com.rabbitmq.client.AMQP
 
 import io.scalac.amqp.{Connection, Delivery}
