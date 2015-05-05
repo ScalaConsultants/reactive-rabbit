@@ -71,7 +71,7 @@ class QueuePublisherSpec(defaultTimeout: FiniteDuration, publisherShutdownTimeou
         n = elements)(() ⇒ deleteQueue(queue))
   }
 
-  override def createErrorStatePublisher(): Publisher[Delivery] = {
+  override def createFailedPublisher(): Publisher[Delivery] = {
     val conn = Connection()
     conn.asInstanceOf[RabbitConnection].underlying.close()
     conn.consume("whatever")

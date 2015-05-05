@@ -7,16 +7,16 @@ Reactive Streams: AMQP
 
 Available at Maven Central for Scala 2.10 and 2.11:
 
-    libraryDependencies += "io.scalac" %% "reactive-rabbit" % "0.2.2"
+    libraryDependencies += "io.scalac" %% "reactive-rabbit" % "1.0.0"
 
 Example
 ----
 
-#### Akka Streams - 0.11
+#### Akka Streams - 1.0-RC2
 
 ```Scala
 import akka.actor.ActorSystem
-import akka.stream.FlowMaterializer
+import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import io.scalac.amqp.Connection
 
@@ -28,7 +28,7 @@ val exchange = connection.publish(exchange = "accounting_department",
   routingKey = "invoices")
 
 implicit val system = ActorSystem()
-implicit val materializer = FlowMaterializer()
+implicit val materializer = ActorFlowMaterializer()
 
 Source(queue).map(_.message).to(Sink(exchange)).run()
 ```
