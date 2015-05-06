@@ -46,7 +46,7 @@ trait Connection {
     * @param routingKey  the routine key to use for the binding
     * @param arguments   other properties (binding parameters) */
   def exchangeBind(destination: String, source: String, routingKey: String,
-                   arguments: Map[String, AnyRef] = Map.empty): Future[Exchange.BindOk]
+                   arguments: Map[String, String] = Map.empty): Future[Exchange.BindOk]
 
   /** Unbind an exchange from an exchange.
     *
@@ -85,7 +85,7 @@ trait Connection {
     * @param routingKey the routine key to use for the binding
     * @param arguments  other properties (binding parameters) */
   def queueBind(queue: String, exchange: String, routingKey: String,
-                arguments: Map[String, AnyRef] = Map.empty): Future[Queue.BindOk]
+                arguments: Map[String, String] = Map.empty): Future[Queue.BindOk]
 
   /** Unbind a queue from an exchange.
     *

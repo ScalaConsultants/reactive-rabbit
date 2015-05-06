@@ -48,7 +48,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       .map(_ ⇒ Exchange.DeleteOk())
 
   override def exchangeBind(destination: String, source: String, routingKey: String,
-                            arguments: Map[String, AnyRef]) =
+                            arguments: Map[String, String]) =
     Future(onChannel(_.exchangeBind(destination, source, routingKey, arguments)))
       .map(_ ⇒ Exchange.BindOk())
 
@@ -95,7 +95,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       .map(ok ⇒ Queue.PurgeOk(ok.getMessageCount))
 
   override def queueBind(queue: String, exchange: String, routingKey: String,
-                         arguments: Map[String, AnyRef]) =
+                         arguments: Map[String, String]) =
     Future(onChannel(_.queueBind(queue, exchange, routingKey, arguments)))
       .map(_ ⇒ Queue.BindOk())
 
