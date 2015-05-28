@@ -41,6 +41,10 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     }
   } catch {
     case NonFatal(exception) ⇒
+      // 2.13: exception from onNext cancels subscription
+      try (channel.close()) catch {
+        case NonFatal(_) ⇒ // mute
+      }
       subscriber.onError(exception)
   }
 
