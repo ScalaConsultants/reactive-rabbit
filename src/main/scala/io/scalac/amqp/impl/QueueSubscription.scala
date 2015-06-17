@@ -22,6 +22,9 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   /** Number of messages stored in this buffer is limited by channel QOS. */
   val buffer = Ref(Queue[Delivery]())
 
+  /** to guarantee order of delivery */
+  val futureQueue = Ref(Future.successful())
+
   override def handleCancel(consumerTag: String) = try {
     subscriber.onComplete()
   } catch {
@@ -98,7 +101,9 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
       if (!buffered.isEmpty) {
         // 3.3: must continue somewhere else to prevent unbounded recursion
-        Future(buffered.foreach(deliver))
+        futureQueue.getAndTransform {
+          future => future.andThen { case _ ⇒ buffered.foreach(deliver) }
+        }
       }
 
     case _                     ⇒ // 3.6: nop
