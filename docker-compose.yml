@@ -1,0 +1,8 @@
+rabbitmq:
+  image: rabbitmq:3.5.3-management
+  ports:
+    - "8080:15672"  # management port (guest:guest)
+    - "5672:5672"   # amqp port
+    - "25672:25672" # cluster port
+  environment:
+    - "RABBITMQ_NODENAME=my-rabbit"

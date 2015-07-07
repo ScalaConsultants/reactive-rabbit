@@ -1,25 +1,28 @@
 package io.scalac.amqp
 
+import com.typesafe.config.ConfigFactory
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
 
-import com.typesafe.config.ConfigFactory
-
-import org.scalatest.{FlatSpec, Matchers}
-
-
 class ConnectionSettingsSpec extends FlatSpec with Matchers {
-  "apply" should "be able to load configuration from TypeSafe Config" in {
-    val settings = ConnectionSettings(ConfigFactory.load("reference.conf"))
-    settings shouldBe ConnectionSettings(
+
+  val referenceSettings =
+    ConnectionSettings(
       addresses = Seq(Address(host = "localhost", port = 5672)),
       virtualHost = "/",
       username = "guest",
       password = "guest",
       heartbeat = None,
       timeout = Duration.Inf,
-      recoveryInterval = 5.seconds
-    )
+      recoveryInterval = 5.seconds)
+
+  "apply" should "be able to load configuration from TypeSafe Config" in {
+    val settings = ConnectionSettings(ConfigFactory.load("application.conf"))
+    if(settings.addresses.head.host == "localhost")
+      settings shouldBe referenceSettings
+     else settings shouldBe referenceSettings.copy(addresses = referenceSettings.addresses.map(_.copy(host = "boot2docker")))
 
     def parseAndLoad(s: String) = ConfigFactory.load(ConfigFactory.parseString(s))
 

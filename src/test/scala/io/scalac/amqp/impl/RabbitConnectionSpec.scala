@@ -1,21 +1,18 @@
 package io.scalac.amqp.impl
 
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import akka.actor.ActorSystem
-import akka.stream.ActorFlowMaterializer
-import akka.stream.scaladsl.{Source, Sink}
-
 import java.io.IOException
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Sink, Source}
 import io.scalac.amqp._
-
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Span, Millis}
+import org.scalatest.time.{Millis, Span}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
   implicit override val patienceConfig =
@@ -23,7 +20,7 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
 
   val connection = Connection()
   implicit val system = ActorSystem()
-  implicit val mat = ActorFlowMaterializer()
+  implicit val mat = ActorMaterializer()
 
   override def afterAll() = system.shutdown()
 

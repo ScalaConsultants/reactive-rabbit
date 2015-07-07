@@ -4,7 +4,7 @@ sonatypeSettings
 
 name := "reactive-rabbit"
 
-version := "1.0.0"
+version := "1.0.1-SNAPSHOT"
 
 organization := "io.scalac"
 
@@ -14,15 +14,15 @@ licenses := Seq("Apache License 2.0" -> url("http://opensource.org/licenses/Apac
 
 homepage := Some(url("https://github.com/ScalaConsultants/reactive-rabbit"))
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
-crossScalaVersions := Seq("2.10.4", "2.11.6")
+crossScalaVersions := Seq("2.10.5", "2.11.7")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
 libraryDependencies ++= Seq(
   "org.reactivestreams"      %  "reactive-streams"         % "1.0.0",
-  "com.rabbitmq"             %  "amqp-client"              % "3.5.1",
+  "com.rabbitmq"             %  "amqp-client"              % "3.5.3",
   "org.scala-stm"            %% "scala-stm"                % "0.7",
   "com.typesafe"             %  "config"                   % "1.2.1",              // Configuration
   "joda-time"                %  "joda-time"                % "2.7",                // for DateTime
@@ -33,7 +33,7 @@ libraryDependencies ++= Seq(
   "org.scalatest"            %% "scalatest"                % "2.2.4"     % "test", // for TCK
   "com.google.inject"        %  "guice"                    % "3.0"       % "test", // to make sbt happy
   "org.reactivestreams"      %  "reactive-streams-tck"     % "1.0.0"     % "test",
-  "com.typesafe.akka"        %% "akka-stream-experimental" % "1.0-RC2"   % "test"
+  "com.typesafe.akka"        %% "akka-stream-experimental" % "1.0-RC4"   % "test"
 )
 
 publishMavenStyle := true

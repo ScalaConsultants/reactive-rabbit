@@ -1,17 +1,14 @@
 package io.scalac.amqp.impl
 
-import scala.concurrent.duration._
-
 import akka.actor.ActorSystem
-import akka.stream.ActorFlowMaterializer
-import akka.stream.scaladsl.{Source, Sink}
-
-import io.scalac.amqp.{Message, Connection, Routed}
-
-import org.reactivestreams.tck.{TestEnvironment, SubscriberBlackboxVerification}
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Sink, Source}
+import io.scalac.amqp.{Connection, Message, Routed}
+import org.reactivestreams.tck.{SubscriberBlackboxVerification, TestEnvironment}
 import org.scalatest.testng.TestNGSuiteLike
 import org.testng.annotations.AfterSuite
 
+import scala.concurrent.duration._
 
 class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends SubscriberBlackboxVerification[Routed](
   new TestEnvironment(defaultTimeout.toMillis)) with TestNGSuiteLike {
@@ -20,7 +17,7 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
 
   val connection = Connection()
   implicit val system = ActorSystem()
-  implicit val mat = ActorFlowMaterializer()
+  implicit val mat = ActorMaterializer()
 
   @AfterSuite def cleanup() = system.shutdown()
 

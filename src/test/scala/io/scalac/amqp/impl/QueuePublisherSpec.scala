@@ -1,18 +1,15 @@
 package io.scalac.amqp.impl
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 import java.util.concurrent.atomic.AtomicLong
 
 import com.rabbitmq.client.AMQP
-
 import io.scalac.amqp.{Connection, Delivery}
-
 import org.reactivestreams.tck.{PublisherVerification, TestEnvironment}
-import org.reactivestreams.{Subscription, Subscriber, Publisher}
+import org.reactivestreams.{Publisher, Subscriber, Subscription}
 import org.scalatest.testng.TestNGSuiteLike
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 /** You need to have RabbitMQ server to run these tests.
   * Here you can get it: https://www.rabbitmq.com/download.html */
