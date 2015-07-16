@@ -22,6 +22,7 @@ private object Conversions {
     factory.setVirtualHost(settings.virtualHost)
     factory.setUsername(settings.username)
     factory.setPassword(settings.password)
+    factory.setAutomaticRecoveryEnabled(settings.automaticRecovery)
 
     // the initially requested heartbeat interval, in seconds; zero for none
     settings.heartbeat match {

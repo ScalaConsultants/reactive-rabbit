@@ -58,6 +58,7 @@ object ConnectionSettings {
       case "infinite" ⇒ Duration.Inf
       case _          ⇒ config.getMillisDuration("amqp.timeout")
     },
+    automaticRecovery = config.getBoolean("amqp.automatic-recovery"),
     recoveryInterval = config.getMillisDuration("amqp.recovery-interval")
   )
 
@@ -92,6 +93,9 @@ final case class ConnectionSettings(
 
   /** The default connection timeout, at least 1 millisecond. */
   timeout: Duration,
+
+  /** Enable automatic connection recovery. Subscriptions are not recovered. */
+  automaticRecovery: Boolean,
 
   /** How long will automatic recovery wait before attempting to reconnect. */
   recoveryInterval: FiniteDuration) {

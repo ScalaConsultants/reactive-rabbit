@@ -10,13 +10,14 @@ class ConnectionSettingsSpec extends FlatSpec with Matchers {
 
   val referenceSettings =
     ConnectionSettings(
-      addresses = Seq(Address(host = "localhost", port = 5672)),
-      virtualHost = "/",
-      username = "guest",
-      password = "guest",
-      heartbeat = None,
-      timeout = Duration.Inf,
-      recoveryInterval = 5.seconds)
+      addresses         = Seq(Address(host = "localhost", port = 5672)),
+      virtualHost       = "/",
+      username          = "guest",
+      password          = "guest",
+      heartbeat         = None,
+      timeout           = Duration.Inf,
+      automaticRecovery = false,
+      recoveryInterval  = 5.seconds)
 
   "apply" should "be able to load configuration from TypeSafe Config" in {
     val settings = ConnectionSettings(ConfigFactory.load("application.conf"))
