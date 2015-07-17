@@ -31,7 +31,6 @@ libraryDependencies ++= Seq(
   "com.google.guava"         %  "guava"                    % "18.0",             // for MediaType
   "com.google.code.findbugs" %  "jsr305"                   % "3.0.0",
   "org.scalatest"            %% "scalatest"                % "2.2.4"   % "test", // for TCK
-  "com.google.inject"        %  "guice"                    % "3.0"     % "test", // to make sbt happy
   "org.reactivestreams"      %  "reactive-streams-tck"     % "1.0.0"   % "test",
   "com.typesafe.akka"        %% "akka-stream-experimental" % "1.0"     % "test"
 )
