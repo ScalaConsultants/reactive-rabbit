@@ -12,7 +12,7 @@ Available at Maven Central for Scala 2.10 and 2.11:
 Example
 ----
 
-#### Akka Streams - 1.0-RC4
+#### Akka Streams - 1.0
 
 ```Scala
 import akka.actor.ActorSystem
