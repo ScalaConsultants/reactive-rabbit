@@ -1,14 +1,12 @@
 package io.scalac.amqp.impl
 
-import scala.concurrent.stm.Ref
-import scala.util.{Success, Failure, Try}
-import scala.util.control.NonFatal
-
-import com.rabbitmq.client.{ShutdownSignalException, ShutdownListener, Connection}
-
+import com.rabbitmq.client.{Connection, ShutdownListener, ShutdownSignalException}
 import io.scalac.amqp.Delivery
+import org.reactivestreams.{Publisher, Subscriber}
 
-import org.reactivestreams.{Subscriber, Publisher}
+import scala.concurrent.stm.Ref
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 
 private[amqp] class QueuePublisher(

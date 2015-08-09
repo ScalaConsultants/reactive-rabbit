@@ -3,11 +3,10 @@ package io.scalac.amqp
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.Config
+import io.scalac.amqp.ConnectionSettings._
 
 import scala.collection.immutable.Seq
 import scala.concurrent.duration._
-
-import io.scalac.amqp.ConnectionSettings._
 
 
 /** Hostname/port pair. */

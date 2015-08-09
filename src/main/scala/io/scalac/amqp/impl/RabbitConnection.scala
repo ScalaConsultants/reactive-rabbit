@@ -1,16 +1,14 @@
 package io.scalac.amqp.impl
 
-import scala.collection.JavaConversions._
-import scala.concurrent.{blocking, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import java.io.IOException
 
-import com.rabbitmq.client.{AlreadyClosedException, Address, Channel}
-
+import com.rabbitmq.client.{Address, AlreadyClosedException, Channel}
 import io.scalac.amqp._
+import org.reactivestreams.{Subscriber, Subscription}
 
-import org.reactivestreams.{Subscription, Subscriber}
+import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, blocking}
 
 
 private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {

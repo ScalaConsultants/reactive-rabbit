@@ -4,10 +4,8 @@ import java.util.concurrent.atomic.AtomicReference
 
 import com.google.common.base.Preconditions.checkNotNull
 import com.rabbitmq.client.Channel
-
 import io.scalac.amqp.Routed
-
-import org.reactivestreams.{Subscription, Subscriber}
+import org.reactivestreams.{Subscriber, Subscription}
 
 
 private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)

@@ -1,14 +1,10 @@
 package io.scalac.amqp
 
-import scala.concurrent.Future
-
-import java.io.IOException
-
-import com.typesafe.config.{ConfigFactory, Config}
-
+import com.typesafe.config.{Config, ConfigFactory}
 import io.scalac.amqp.impl.RabbitConnection
+import org.reactivestreams.{Publisher, Subscriber}
 
-import org.reactivestreams.{Subscriber, Publisher}
+import scala.concurrent.Future
 
 
 object Connection {

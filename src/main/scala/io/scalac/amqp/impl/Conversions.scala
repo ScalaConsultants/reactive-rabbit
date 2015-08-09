@@ -1,19 +1,16 @@
 package io.scalac.amqp.impl
 
-import scala.collection.JavaConversions._
-import scala.concurrent.duration.Duration
-
 import java.util.concurrent.TimeUnit
 
 import akka.util.ByteString
-
 import com.google.common.collect.ImmutableMap
 import com.google.common.net.MediaType
 import com.rabbitmq.client.{AMQP, ConnectionFactory, Envelope}
-
 import io.scalac.amqp._
-
 import org.joda.time.DateTime
+
+import scala.collection.JavaConversions._
+import scala.concurrent.duration.Duration
 
 
 private object Conversions {

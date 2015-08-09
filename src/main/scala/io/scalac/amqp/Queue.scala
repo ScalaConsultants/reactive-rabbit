@@ -1,8 +1,8 @@
 package io.scalac.amqp
 
-import scala.concurrent.duration._
-
 import io.scalac.amqp.Queue._
+
+import scala.concurrent.duration._
 
 
 object Queue {

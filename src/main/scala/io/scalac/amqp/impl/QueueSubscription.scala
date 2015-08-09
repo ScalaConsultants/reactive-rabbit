@@ -1,17 +1,15 @@
 package io.scalac.amqp.impl
 
-import scala.collection.immutable.Queue
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.stm.{atomic, Ref}
-import scala.util.control.NonFatal
-
-import com.rabbitmq.client._
 import com.google.common.primitives.Ints.saturatedCast
-
+import com.rabbitmq.client._
 import io.scalac.amqp.Delivery
+import org.reactivestreams.{Subscriber, Subscription}
 
-import org.reactivestreams.{Subscription, Subscriber}
+import scala.collection.immutable.Queue
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.stm.{Ref, atomic}
+import scala.util.control.NonFatal
 
 
 private[amqp] class QueueSubscription(channel: Channel, queue: String, subscriber: Subscriber[_ >: Delivery])
