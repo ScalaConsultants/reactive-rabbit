@@ -1,7 +1,7 @@
 package io.scalac.amqp.impl
 
 import scala.collection.JavaConversions._
-import scala.concurrent.Future
+import scala.concurrent.{blocking, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import java.io.IOException
@@ -29,8 +29,10 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     }
   }
 
+  def future[T](f: ⇒ T): Future[T] = Future(blocking(f))
+
   override def exchangeDeclare(exchange: Exchange) =
-    Future(onChannel(_.exchangeDeclare(
+    future(onChannel(_.exchangeDeclare(
       exchange.name,
       Conversions.toExchangeType(exchange.`type`),
       exchange.durable,
@@ -40,24 +42,24 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     ).map(_ ⇒ Exchange.DeclareOk())
 
   override def exchangeDeclarePassive(exchange: String) =
-    Future(onChannel(_.exchangeDeclarePassive(exchange)))
+    future(onChannel(_.exchangeDeclarePassive(exchange)))
       .map(_ ⇒ Exchange.DeclareOk())
 
   override def exchangeDelete(exchange: String, ifUnused: Boolean = false) =
-    Future(onChannel(_.exchangeDelete(exchange, ifUnused)))
+    future(onChannel(_.exchangeDelete(exchange, ifUnused)))
       .map(_ ⇒ Exchange.DeleteOk())
 
   override def exchangeBind(destination: String, source: String, routingKey: String,
                             arguments: Map[String, String]) =
-    Future(onChannel(_.exchangeBind(destination, source, routingKey, arguments)))
+    future(onChannel(_.exchangeBind(destination, source, routingKey, arguments)))
       .map(_ ⇒ Exchange.BindOk())
 
   override def exchangeUnbind(destination: String, source: String, routingKey: String) =
-    Future(onChannel(_.exchangeUnbind(destination, source, routingKey)))
+    future(onChannel(_.exchangeUnbind(destination, source, routingKey)))
       .map(_ ⇒ Exchange.UnbindOk())
 
   override def queueDeclare(queue: Queue) =
-    Future(onChannel(_.queueDeclare(
+    future(onChannel(_.queueDeclare(
       queue.name,
       queue.durable,
       queue.exclusive,
@@ -70,7 +72,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     ))
 
   override def queueDeclare() =
-    Future(onChannel(_.queueDeclare()))
+    future(onChannel(_.queueDeclare()))
       .map(ok ⇒ Queue(
         name = ok.getQueue,
         durable = false,
@@ -79,7 +81,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       ))
 
   override def queueDeclarePassive(queue: String) =
-    Future(onChannel(_.queueDeclarePassive(queue)))
+    future(onChannel(_.queueDeclarePassive(queue)))
       .map(ok ⇒ Queue.DeclareOk(
         queue = ok.getQueue,
         messageCount = ok.getMessageCount,
@@ -87,20 +89,20 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       ))
 
   override def queueDelete(queue: String, ifUnused: Boolean, ifEmpty: Boolean) =
-    Future(onChannel(_.queueDelete(queue, ifUnused, ifEmpty)))
+    future(onChannel(_.queueDelete(queue, ifUnused, ifEmpty)))
       .map(ok ⇒ Queue.DeleteOk(ok.getMessageCount))
 
   override def queuePurge(queue: String) =
-    Future(onChannel(_.queuePurge(queue)))
+    future(onChannel(_.queuePurge(queue)))
       .map(ok ⇒ Queue.PurgeOk(ok.getMessageCount))
 
   override def queueBind(queue: String, exchange: String, routingKey: String,
                          arguments: Map[String, String]) =
-    Future(onChannel(_.queueBind(queue, exchange, routingKey, arguments)))
+    future(onChannel(_.queueBind(queue, exchange, routingKey, arguments)))
       .map(_ ⇒ Queue.BindOk())
 
   override def queueUnbind(queue: String, exchange: String, routingKey: String) =
-    Future(onChannel(_.queueUnbind(queue, exchange, routingKey)))
+    future(onChannel(_.queueUnbind(queue, exchange, routingKey)))
       .map(_ ⇒ Queue.UnbindOk())
 
   def declare(exchange: Exchange) =
