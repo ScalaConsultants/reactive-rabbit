@@ -22,11 +22,11 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   def onChannel[T](f: Channel ⇒ T): T = {
     val channel = underlying.createChannel()
-    val result = f(channel)
-    try (channel.close()) catch {
-      case _: IOException | _: AlreadyClosedException ⇒ // don't care
+    try f(channel) finally {
+      try (channel.close()) catch {
+        case _: IOException | _: AlreadyClosedException ⇒ // don't care
+      }
     }
-    result
   }
 
   override def exchangeDeclare(exchange: Exchange) =
