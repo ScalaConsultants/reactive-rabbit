@@ -58,7 +58,8 @@ object ConnectionSettings {
       case _          ⇒ config.getMillisDuration("amqp.timeout")
     },
     automaticRecovery = config.getBoolean("amqp.automatic-recovery"),
-    recoveryInterval = config.getMillisDuration("amqp.recovery-interval")
+    recoveryInterval = config.getMillisDuration("amqp.recovery-interval"),
+    secure = config.getBoolean("amqp.secure")
   )
 
   /** INTERNAL API */
@@ -97,7 +98,9 @@ final case class ConnectionSettings(
   automaticRecovery: Boolean,
 
   /** How long will automatic recovery wait before attempting to reconnect. */
-  recoveryInterval: FiniteDuration) {
+  recoveryInterval: FiniteDuration,
+
+  secure: Boolean) {
 
   heartbeat.foreach(interval ⇒
     require(interval >= HeartbeatMin && interval <= HeartbeatMax,
@@ -109,5 +112,5 @@ final case class ConnectionSettings(
 
   /** Returns a string representation of this. Password field is intentionally omitted. */
   override def toString = s"ConnectionSettings(addresses=$addresses, virtualHost=$virtualHost, username=$username, " +
-    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval)"
+    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval, secure=$secure)"
 }

@@ -36,6 +36,10 @@ private object Conversions {
     // how long will automatic recovery wait before attempting to reconnect
     factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis)
 
+    if(settings.secure) {
+      factory.useSslProtocol("TLSv1.2")
+    }
+
     factory
   }
 
