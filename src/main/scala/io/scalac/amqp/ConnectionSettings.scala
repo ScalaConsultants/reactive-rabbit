@@ -24,6 +24,9 @@ final case class Address(
 }
 
 object ConnectionSettings {
+  /** SSL protocol e.g. "TLSv1" or "TLSv1.2". */
+  type Protocol = String
+
   /** Minimum value for connection timeout setting. */
   val TimeoutMin = 1.milli
 
@@ -59,7 +62,10 @@ object ConnectionSettings {
     },
     automaticRecovery = config.getBoolean("amqp.automatic-recovery"),
     recoveryInterval = config.getMillisDuration("amqp.recovery-interval"),
-    secure = config.getBoolean("amqp.secure")
+    ssl = config.getString("amqp.ssl") match {
+      case "disable" ⇒ None
+      case protocol  ⇒ Some(protocol)
+    }
   )
 
   /** INTERNAL API */
@@ -100,7 +106,9 @@ final case class ConnectionSettings(
   /** How long will automatic recovery wait before attempting to reconnect. */
   recoveryInterval: FiniteDuration,
 
-  secure: Boolean) {
+  /** Allows to use SSL for connecting to the broker.
+    * Pass in the SSL protocol to use, e.g. "TLSv1" or "TLSv1.2" or none. */
+  ssl: Option[Protocol]) {
 
   heartbeat.foreach(interval ⇒
     require(interval >= HeartbeatMin && interval <= HeartbeatMax,
@@ -112,5 +120,5 @@ final case class ConnectionSettings(
 
   /** Returns a string representation of this. Password field is intentionally omitted. */
   override def toString = s"ConnectionSettings(addresses=$addresses, virtualHost=$virtualHost, username=$username, " +
-    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval, secure=$secure)"
+    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval, ssl=$ssl)"
 }

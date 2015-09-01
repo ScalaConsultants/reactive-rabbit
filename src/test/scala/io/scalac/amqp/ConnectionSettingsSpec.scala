@@ -18,7 +18,7 @@ class ConnectionSettingsSpec extends FlatSpec with Matchers {
       timeout           = Duration.Inf,
       automaticRecovery = false,
       recoveryInterval  = 5.seconds,
-      secure            = false)
+      ssl               = None)
 
   "apply" should "be able to load configuration from TypeSafe Config" in {
     val settings = ConnectionSettings(ConfigFactory.load("application.conf"))
