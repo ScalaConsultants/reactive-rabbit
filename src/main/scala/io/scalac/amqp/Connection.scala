@@ -90,7 +90,21 @@ trait Connection {
     * @param routingKey the routine key to use for the binding */
   def queueUnbind(queue: String, exchange: String, routingKey: String): Future[Queue.UnbindOk]
 
-  def consume(queue: String): Publisher[Delivery]
+  /** Creates queue `Publisher`.
+   *
+   * Publisher keeps track of all his subscribers so they can only have one active subscription.
+   * It also does necessary housekeeping related to the subscription life cycle. Every subscription
+   * has its own channel and is isolated from others.
+   * Returned instance is very lightweight and cheap to create.
+   *
+   * Keep in mind that some Reactive Streams implementations like Akka Streams do their own buffering.
+   * Messages delivered to the buffer are considered delivered.
+   *
+   * @param queue Name of the consumed queue.
+   * @param prefetch Number of unacknowledged messages in flight. It's beneficial to have this number higher
+   *                 than 1 due to improved throughput. Setting this number to high may increase memory usage -
+   *                 depending on average message size and speed of subscribers. */
+  def consume(queue: String, prefetch: Int = 20): Publisher[Delivery]
 
   def publish(exchange: String, routingKey: String): Subscriber[Message]
 
