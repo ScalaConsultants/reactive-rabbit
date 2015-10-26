@@ -2,7 +2,6 @@ package io.scalac.amqp.impl
 
 import java.util.concurrent.TimeUnit
 
-import akka.util.ByteString
 import com.google.common.collect.ImmutableMap
 import com.google.common.net.MediaType
 import com.rabbitmq.client.{AMQP, ConnectionFactory, Envelope}
@@ -55,29 +54,29 @@ private object Conversions {
     }
 
     Message(
-      body = ByteString(body),
-      contentType = Option(properties.getContentType).map(MediaType.parse),
+      body            = body,
+      contentType     = Option(properties.getContentType).map(MediaType.parse),
       contentEncoding = Option(properties.getContentEncoding),
-      headers = Option(properties.getHeaders).map(_.toMap.mapValues(_.toString)).getOrElse(Map()),
-      mode = toDeliveryMode(properties.getDeliveryMode),
-      priority = Option(properties.getPriority).map(Integer2int),
-      correlationId = Option(properties.getCorrelationId),
-      replyTo = Option(properties.getReplyTo),
-      expiration = toExpiration(properties.getExpiration),
-      messageId = Option(properties.getMessageId),
-      timestamp = Option(properties.getTimestamp).map(new DateTime(_)),
-      `type` = Option(properties.getType),
-      userId = Option(properties.getUserId),
-      appId = Option(properties.getAppId))
+      headers         = Option(properties.getHeaders).map(_.toMap.mapValues(_.toString)).getOrElse(Map()),
+      mode            = toDeliveryMode(properties.getDeliveryMode),
+      priority        = Option(properties.getPriority).map(Integer2int),
+      correlationId   = Option(properties.getCorrelationId),
+      replyTo         = Option(properties.getReplyTo),
+      expiration      = toExpiration(properties.getExpiration),
+      messageId       = Option(properties.getMessageId),
+      timestamp       = Option(properties.getTimestamp).map(new DateTime(_)),
+      `type`          = Option(properties.getType),
+      userId          = Option(properties.getUserId),
+      appId           = Option(properties.getAppId))
   }
 
   def toDelivery(envelope: Envelope, properties: AMQP.BasicProperties, body: Array[Byte]): Delivery =
     Delivery(
-      message = toMessage(properties, body),
+      message     = toMessage(properties, body),
       deliveryTag = DeliveryTag(envelope.getDeliveryTag),
-      exchange = envelope.getExchange,
-      routingKey = envelope.getRoutingKey,
-      redeliver = envelope.isRedeliver)
+      exchange    = envelope.getExchange,
+      routingKey  = envelope.getRoutingKey,
+      redeliver   = envelope.isRedeliver)
 
   /** Converts [[Message]] to [[AMQP.BasicProperties]]. */
   def toBasicProperties(message: Message): AMQP.BasicProperties = {

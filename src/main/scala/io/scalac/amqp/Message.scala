@@ -1,6 +1,5 @@
 package io.scalac.amqp
 
-import akka.util.ByteString
 import com.google.common.net.MediaType
 import io.scalac.amqp.Message.{PriorityMax, PriorityMin}
 import org.joda.time.DateTime
@@ -16,7 +15,7 @@ object Message {
 
 final case class Message(
   /** Message body. */
-  body: ByteString = ByteString.empty,
+  body: IndexedSeq[Byte] = IndexedSeq.empty,
 
   /** The RFC-2046 MIME type for the messages application-data section (body).
     * Can contain a charset parameter defining the character encoding
