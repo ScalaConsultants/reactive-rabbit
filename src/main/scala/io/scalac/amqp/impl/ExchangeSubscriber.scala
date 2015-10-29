@@ -1,8 +1,8 @@
 package io.scalac.amqp.impl
 
+import java.util.Objects.requireNonNull
 import java.util.concurrent.atomic.AtomicReference
 
-import com.google.common.base.Preconditions.checkNotNull
 import com.rabbitmq.client.Channel
 import io.scalac.amqp.Routed
 import org.reactivestreams.{Subscriber, Subscription}
@@ -31,7 +31,7 @@ private[amqp] class ExchangeSubscriber(channel: Channel, exchange: String)
 
   /** Our life cycle is bounded to underlying `Channel`. */
   override def onError(t: Throwable) = {
-    checkNotNull(t)
+    requireNonNull(t)
     channel.close()
   }
 
