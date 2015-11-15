@@ -141,5 +141,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
     publish(exchange = "",
       routingKey = queue)
 
+  override def shutdown() = future(underlying.close())
+
   override def toString = s"RabbitConnection(settings=$settings)"
 }

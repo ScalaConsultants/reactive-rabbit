@@ -111,4 +111,9 @@ trait Connection {
   def publish(exchange: String): Subscriber[Routed]
 
   def publishDirectly(queue: String): Subscriber[Message]
+
+  /** Shutdowns underlying connection.
+    * Publishers and subscribers are terminated and notified via `onError`.
+    * This method waits for all close operations to complete. */
+  def shutdown(): Future[Unit]
 }

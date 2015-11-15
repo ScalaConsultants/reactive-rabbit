@@ -6,6 +6,7 @@ import java.util.UUID
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
+import com.rabbitmq.client.AlreadyClosedException
 import io.scalac.amqp._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Span}
@@ -22,7 +23,7 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
 
-  override def afterAll() = system.shutdown()
+  override def afterAll() = try system.shutdown() finally connection.shutdown()
 
 
   "queueDeclare" should "declare server-named, exclusive, auto-delete, non-durable queue" in {
@@ -81,9 +82,10 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
   "queueDelete" should "delete queue" in {
     connection.queueDeclare().flatMap(queue ⇒
       connection.queueDelete(queue.name).map(_ -> queue)).flatMap {
-      case (ok, queue) ⇒ connection.queueDeclarePassive(queue.name)
-        .map(_ ⇒ false)
-        .recover {
+      case (Queue.DeleteOk(_), queue) ⇒
+        connection.queueDeclarePassive(queue.name)
+          .map(_ ⇒ false)
+          .recover {
           case e: IOException ⇒ true
         }
     }.futureValue shouldBe true
@@ -101,6 +103,16 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
       _        <- connection.queueDelete(queue.name)
       deleteOk <- connection.exchangeDelete(name)
     } yield (deleteOk)).futureValue shouldBe Exchange.DeleteOk()
+  }
+
+  "shutdown" should "close underlying connection" in {
+    val connection = Connection().asInstanceOf[RabbitConnection]
+    connection.underlying.isOpen() shouldBe true
+    connection.shutdown().futureValue shouldBe (())
+    connection.underlying.isOpen() shouldBe false
+    whenReady(connection.shutdown().failed)(e =>
+      e shouldBe a[AlreadyClosedException]
+    )
   }
 
 }
