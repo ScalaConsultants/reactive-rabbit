@@ -64,7 +64,7 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
   it should "return number of consumers" in {
     val queue = Queue(name = UUID.randomUUID().toString, exclusive = true)
     connection.queueDeclare(queue).flatMap { _ ⇒
-      Source(connection.consume(queue.name)).to(Sink.ignore).run()
+      Source.fromPublisher(connection.consume(queue.name)).runWith(Sink.ignore)
       connection.queueDeclare(queue)
     }.futureValue should have (
       'consumerCount (1)

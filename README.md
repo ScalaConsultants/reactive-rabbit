@@ -12,7 +12,7 @@ Available at Maven Central for Scala 2.10 and 2.11:
 Example
 ----
 
-#### Akka Streams - 1.0
+#### Akka Streams - 2.0.1
 
 ```Scala
 import akka.actor.ActorSystem
@@ -30,5 +30,5 @@ val exchange = connection.publish(exchange = "accounting_department",
 implicit val system = ActorSystem()
 implicit val mat = ActorMaterializer()
 
-Source(queue).map(_.message).to(Sink(exchange)).run()
+Source.fromPublisher(queue).map(_.message).runWith(Sink.fromSubscriber(exchange))
 ```
