@@ -4,7 +4,7 @@ sonatypeSettings
 
 name := "reactive-rabbit"
 
-version := "1.0.3"
+version := "1.0.4"
 
 organization := "io.scalac"
 
@@ -16,7 +16,7 @@ homepage := Some(url("https://github.com/ScalaConsultants/reactive-rabbit"))
 
 scalaVersion := "2.11.7"
 
-crossScalaVersions := Seq("2.10.5", "2.11.7")
+crossScalaVersions := Seq("2.10.6", "2.11.7")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
