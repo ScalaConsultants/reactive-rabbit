@@ -106,10 +106,27 @@ trait Connection {
    *                 depending on average message size and speed of subscribers. */
   def consume(queue: String, prefetch: Int = 20): Publisher[Delivery]
 
+  /** Creates exchange `Subscriber` with fixed routing key.
+    *
+    * Each `Message` will be mapped to `Routed` with given routing key.
+    *
+    * @param exchange the name of the exchange
+    * @param routingKey the routing key for messages published via this Subscriber
+    */
   def publish(exchange: String, routingKey: String): Subscriber[Message]
 
+  /** Creates `Subscriber` that publishes [[Routed]] messages to the exchange.
+    *
+    * @param exchange the name of the exchange
+    */
   def publish(exchange: String): Subscriber[Routed]
 
+  /** Creates an `Subscriber` that publishes its messages to the Default Exchange with @param queue routing key.
+    *
+    * See http://www.rabbitmq.com/tutorials/amqp-concepts.html
+    *
+    * @param queue the routing key for each message
+    */
   def publishDirectly(queue: String): Subscriber[Message]
 
   /** Shutdowns underlying connection.
