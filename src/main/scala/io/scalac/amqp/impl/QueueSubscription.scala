@@ -5,6 +5,7 @@ import com.rabbitmq.client._
 import io.scalac.amqp.Delivery
 import org.reactivestreams.{Subscriber, Subscription}
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Queue
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -19,6 +20,8 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
   /** Number of messages stored in this buffer is limited by channel QOS. */
   val buffer = Ref(Queue[Delivery]())
+  val running = Ref(false)
+  var closeRequested = Ref(false)
 
   override def handleCancel(consumerTag: String) = try {
     subscriber.onComplete()
@@ -32,6 +35,42 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
     case _                                    ⇒ // shutdown initiated by us
   }
 
+
+
+  override def handleDelivery(consumerTag: String,
+                              envelope: Envelope,
+                              properties: AMQP.BasicProperties,
+                              body: Array[Byte]) = {
+    val delivery = Conversions.toDelivery(envelope, properties, body)
+    buffer.single.transform(_ :+ delivery)
+    deliverRequested()
+  }
+
+  @tailrec
+  private def deliverRequested(): Unit = {
+    val go = atomic { implicit txn ⇒
+      if (demand() > 0 && buffer().nonEmpty)
+        running.transformAndExtract(r => (true, !r))
+      else
+        false
+    }
+
+    if (go) {
+      //buffer and demand could only grow since last check
+      atomic { implicit txn ⇒
+        buffer().splitAt(saturatedCast(demand())) match {
+          case (ready, left) ⇒
+            buffer() = left
+            demand -= ready.size
+            ready
+        }
+      }.foreach(deliver)
+
+      running.single.set(false)
+      deliverRequested()
+    }
+  }
+
   def deliver(delivery: Delivery): Unit = try {
     if(channel.isOpen()) {
       channel.basicAck(delivery.deliveryTag.underlying, false)
@@ -40,70 +79,42 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   } catch {
     case NonFatal(exception) ⇒
       // 2.13: exception from onNext cancels subscription
-      try (channel.close()) catch {
+      try closeChannel() catch {
         case NonFatal(_) ⇒ // mute
       }
       subscriber.onError(exception)
   }
 
-  override def handleDelivery(consumerTag: String,
-                              envelope: Envelope,
-                              properties: AMQP.BasicProperties,
-                              body: Array[Byte]) = {
-    val delivery = Conversions.toDelivery(envelope, properties, body)
-
-    atomic { implicit txn ⇒
-      demand() match {
-        case 0 ⇒ // no demand, store for later
-          buffer.transform(_ :+ delivery)
-          Queue()
-        case d ⇒ // dequeue and decrease demand
-          (buffer() :+ delivery).splitAt(saturatedCast(d)) match {
-            case (ready, left) ⇒
-              buffer() = left
-              demand -= ready.size
-              ready
-          }
-      }
-    }.foreach(deliver)
+  def closeChannel(): Unit = synchronized {
+    if (closeRequested.single.compareAndSet(false, true) && channel.isOpen) {
+      channel.close()
+    }
   }
 
   override def request(n: Long) = n match {
-    case n if n <= 0           ⇒
-      try (channel.close()) catch {
+    case n if n <= 0         ⇒
+      try closeChannel() catch {
         case NonFatal(_) ⇒ // mute
       }
       subscriber.onError(new IllegalArgumentException("Rule 3.9: n <= 0"))
 
-    case n if channel.isOpen() ⇒
-      val buffered = atomic { implicit txn ⇒
-        demand.transformAndGet(_ + n) match {
-          case d if d < 0 ⇒ // 3.17: overflow
-            try (channel.close()) catch {
-              case NonFatal(_) ⇒ // mute
-            }
-            subscriber.onError(new IllegalStateException("Rule 3.17: Pending + n > Long.MaxValue"))
-            Queue()
-          case d          ⇒
-            buffer().splitAt(saturatedCast(d)) match {
-              case (ready, left) ⇒
-                buffer() = left
-                demand -= ready.size
-                ready
-            }
-        }
+    case n if channel.isOpen ⇒
+      val newDemand = demand.single.transformAndGet(_ + n)
+      newDemand match {
+        case d if d < 0 ⇒ // 3.17: overflow
+          try closeChannel() catch {
+            case NonFatal(_) ⇒ // mute
+          }
+          subscriber.onError(new IllegalStateException("Rule 3.17: Pending + n > Long.MaxValue"))
+        case d          ⇒
+          Future(deliverRequested())
       }
 
-      if (!buffered.isEmpty) {
-        // 3.3: must continue somewhere else to prevent unbounded recursion
-        Future(buffered.foreach(deliver))
-      }
-
-    case _                     ⇒ // 3.6: nop
+    case _                   ⇒ // 3.6: nop
   }
 
   override def cancel() = try {
-    channel.close()
+    closeChannel()
   } catch {
     case _: AlreadyClosedException ⇒ // 3.7: nop
     case NonFatal(exception)       ⇒
