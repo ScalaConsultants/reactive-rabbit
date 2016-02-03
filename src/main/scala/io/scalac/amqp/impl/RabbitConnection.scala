@@ -10,22 +10,27 @@ import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, blocking}
 
-
 private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Connection {
   val factory = Conversions.toConnectionFactory(settings)
+  val isAutoRecovering = settings.automaticRecovery
   val addresses: Array[Address] = settings.addresses.map(address ⇒
     new Address(address.host, address.port))(collection.breakOut)
 
   val underlying = factory.newConnection(addresses)
 
-  def onChannel[T](f: Channel ⇒ T): T = {
-    val channel = underlying.createChannel()
-    try f(channel) finally {
-      try (channel.close()) catch {
-        case _: IOException | _: AlreadyClosedException ⇒ // don't care
+  lazy val adminChannel = underlying.createChannel()
+
+  def onChannel[T](f: Channel ⇒ T): T =
+    if (isAutoRecovering) {
+      f(adminChannel)
+    } else {
+      val channel = underlying.createChannel()
+      try f(channel) finally {
+        try (channel.close()) catch {
+          case _: IOException | _: AlreadyClosedException ⇒ // don't care
+        }
       }
     }
-  }
 
   def future[T](f: ⇒ T): Future[T] = Future(blocking(f))
 
