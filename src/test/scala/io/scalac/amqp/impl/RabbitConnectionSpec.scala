@@ -23,7 +23,7 @@ class RabbitConnectionSpec extends FlatSpec with Matchers with ScalaFutures with
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
 
-  override def afterAll() = try system.shutdown() finally connection.shutdown()
+  override def afterAll() = try system.terminate() finally connection.shutdown()
 
 
   "queueDeclare" should "declare server-named, exclusive, auto-delete, non-durable queue" in {

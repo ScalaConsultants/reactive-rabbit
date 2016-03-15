@@ -1,5 +1,6 @@
 package io.scalac.amqp.impl
 
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
@@ -19,13 +20,13 @@ class ExchangeSubscriberBlackboxSpec(defaultTimeout: FiniteDuration) extends Sub
   implicit val system = ActorSystem()
   implicit val mat = ActorMaterializer()
 
-  @AfterSuite def cleanup() = system.shutdown()
+  @AfterSuite def cleanup() = system.terminate()
 
   override def createSubscriber() = connection.publish("nowhere")
 
   val message = Routed(routingKey = "foo", message = Message())
 
-  def createHelperSource(elements: Long): Source[Routed, Unit] = elements match {
+  def createHelperSource(elements: Long): Source[Routed, NotUsed] = elements match {
     /** if `elements` is 0 the `Publisher` should signal `onComplete` immediately. */
     case 0                      ⇒ Source.empty
     /** if `elements` is [[Long.MaxValue]] the produced stream must be infinite. */

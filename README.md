@@ -5,14 +5,14 @@ Reactive Streams: AMQP
 
 [Reactive Streams](http://www.reactive-streams.org) driver for AMQP protocol. Powered by [RabbitMQ](https://www.rabbitmq.com/) library.
 
-Available at Maven Central for Scala 2.10 and 2.11:
+Available at Maven Central for Scala 2.11:
 
     libraryDependencies += "io.scalac" %% "reactive-rabbit" % "1.0.3"
 
 Example
 ----
 
-#### Akka Streams - 2.0.1
+#### Akka Streams - 2.4.2
 
 ```Scala
 import akka.actor.ActorSystem

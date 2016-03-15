@@ -14,24 +14,22 @@ licenses := Seq("Apache License 2.0" -> url("http://opensource.org/licenses/Apac
 
 homepage := Some(url("https://github.com/ScalaConsultants/reactive-rabbit"))
 
-scalaVersion := "2.11.7"
-
-crossScalaVersions := Seq("2.10.6", "2.11.7")
+scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
 
 libraryDependencies ++= Seq(
   "org.reactivestreams"      %  "reactive-streams"         % "1.0.0",
-  "com.rabbitmq"             %  "amqp-client"              % "3.5.6",
+  "com.rabbitmq"             %  "amqp-client"              % "3.5.7",
   "org.scala-stm"            %% "scala-stm"                % "0.7",
-  "com.typesafe"             %  "config"                   % "1.2.1",            // Configuration
-  "joda-time"                %  "joda-time"                % "2.8.2",            // for DateTime
-  "org.joda"                 %  "joda-convert"             % "1.7",
-  "com.google.guava"         %  "guava"                    % "18.0",             // for MediaType
-  "com.google.code.findbugs" %  "jsr305"                   % "3.0.0",
-  "org.scalatest"            %% "scalatest"                % "2.2.4"   % "test", // for TCK
+  "com.typesafe"             %  "config"                   % "1.3.0",            // Configuration
+  "joda-time"                %  "joda-time"                % "2.9.2",            // for DateTime
+  "org.joda"                 %  "joda-convert"             % "1.8.1",
+  "com.google.guava"         %  "guava"                    % "19.0",             // for MediaType
+  "com.google.code.findbugs" %  "jsr305"                   % "3.0.1",
+  "org.scalatest"            %% "scalatest"                % "2.2.6"   % "test", // for TCK
   "org.reactivestreams"      %  "reactive-streams-tck"     % "1.0.0"   % "test",
-  "com.typesafe.akka"        %% "akka-stream-experimental" % "2.0.1"   % "test"
+  "com.typesafe.akka"        %% "akka-stream"              % "2.4.2"   % "test"
 )
 
 publishMavenStyle := true

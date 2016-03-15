@@ -2,8 +2,6 @@ language: scala
 services:
   - rabbitmq
 scala:
-  - 2.10.6
-  - 2.11.7
+  - 2.11.8
 jdk:
-  - oraclejdk7
   - oraclejdk8
