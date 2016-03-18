@@ -4,7 +4,7 @@ sonatypeSettings
 
 name := "reactive-rabbit"
 
-version := "1.0.4"
+version := "1.1.0"
 
 organization := "io.scalac"
 
@@ -16,7 +16,7 @@ homepage := Some(url("https://github.com/ScalaConsultants/reactive-rabbit"))
 
 scalaVersion := "2.11.8"
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.7")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings", "-target:jvm-1.8")
 
 libraryDependencies ++= Seq(
   "org.reactivestreams"      %  "reactive-streams"         % "1.0.0",
