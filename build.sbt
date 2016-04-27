@@ -20,7 +20,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warning
 
 libraryDependencies ++= Seq(
   "org.reactivestreams"      %  "reactive-streams"         % "1.0.0",
-  "com.rabbitmq"             %  "amqp-client"              % "3.5.7",
+  "com.rabbitmq"             %  "amqp-client"              % "3.6.1",
   "org.scala-stm"            %% "scala-stm"                % "0.7",
   "com.typesafe"             %  "config"                   % "1.3.0",            // Configuration
   "joda-time"                %  "joda-time"                % "2.9.2",            // for DateTime
