@@ -1,6 +1,8 @@
 Reactive Streams: AMQP
 ====
 
+[![Join the chat at https://gitter.im/ScalaConsultants/reactive-rabbit](https://badges.gitter.im/ScalaConsultants/reactive-rabbit.svg)](https://gitter.im/ScalaConsultants/reactive-rabbit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/ScalaConsultants/reactive-rabbit.svg?branch=master)](https://travis-ci.org/ScalaConsultants/reactive-rabbit)
 
 [Reactive Streams](http://www.reactive-streams.org) driver for AMQP protocol. Powered by [RabbitMQ](https://www.rabbitmq.com/) library.
