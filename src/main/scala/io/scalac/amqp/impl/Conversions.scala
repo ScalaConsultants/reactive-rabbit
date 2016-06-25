@@ -1,12 +1,13 @@
 package io.scalac.amqp.impl
 
+import java.time.{ZoneId, ZonedDateTime}
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 import com.google.common.collect.ImmutableMap
 import com.google.common.net.MediaType
 import com.rabbitmq.client.{AMQP, ConnectionFactory, Envelope}
 import io.scalac.amqp._
-import org.joda.time.DateTime
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.Duration
@@ -64,7 +65,7 @@ private object Conversions {
       replyTo         = Option(properties.getReplyTo),
       expiration      = toExpiration(properties.getExpiration),
       messageId       = Option(properties.getMessageId),
-      timestamp       = Option(properties.getTimestamp).map(new DateTime(_)),
+      timestamp       = Option(properties.getTimestamp).map((d) => ZonedDateTime.ofInstant(d.toInstant, ZoneId.systemDefault())),
       `type`          = Option(properties.getType),
       userId          = Option(properties.getUserId),
       appId           = Option(properties.getAppId))
@@ -100,7 +101,7 @@ private object Conversions {
       .replyTo(message.replyTo.orNull)
       .expiration(toExpiration(message.expiration))
       .messageId(message.messageId.orNull)
-      .timestamp(message.timestamp.map(_.toDate).orNull)
+      .timestamp(message.timestamp.map((d) => Date.from(d.toInstant)).orNull)
       .`type`(message.`type`.orNull)
       .userId(message.userId.orNull)
       .appId(message.appId.orNull)

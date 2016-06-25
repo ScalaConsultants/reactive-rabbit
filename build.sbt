@@ -23,8 +23,6 @@ libraryDependencies ++= Seq(
   "com.rabbitmq"             %  "amqp-client"              % "3.6.1",
   "org.scala-stm"            %% "scala-stm"                % "0.7",
   "com.typesafe"             %  "config"                   % "1.3.0",            // Configuration
-  "joda-time"                %  "joda-time"                % "2.9.2",            // for DateTime
-  "org.joda"                 %  "joda-convert"             % "1.8.1",
   "com.google.guava"         %  "guava"                    % "19.0",             // for MediaType
   "com.google.code.findbugs" %  "jsr305"                   % "3.0.1",
   "org.scalatest"            %% "scalatest"                % "2.2.6"   % "test", // for TCK

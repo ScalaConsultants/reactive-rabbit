@@ -2,7 +2,7 @@ package io.scalac.amqp
 
 import com.google.common.net.MediaType
 import io.scalac.amqp.Message.{PriorityMax, PriorityMin}
-import org.joda.time.DateTime
+import java.time.ZonedDateTime
 
 import scala.concurrent.duration.Duration
 
@@ -77,7 +77,7 @@ final case class Message(
   messageId: Option[String] = None,
 
   /** Timestamp of the moment when message was sent. */
-  timestamp: Option[DateTime] = None,
+  timestamp: Option[ZonedDateTime] = None,
 
   /** Message type, e.g. what type of event or command this message represents.
     * Recommended to be used by applications instead of including this information
