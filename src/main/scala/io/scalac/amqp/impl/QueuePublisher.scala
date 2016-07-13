@@ -37,8 +37,8 @@ private[amqp] class QueuePublisher(
       case _ ⇒
         Try(connection.createChannel()) match {
           case Success(channel) ⇒
-            channel.addShutdownListener(newShutdownListener(subscriber))
             val subscription = new QueueSubscription(channel, queue, subscriber)
+            subscription.addShutdownListener(newShutdownListener(subscriber))
 
             try {
               subscriber.onSubscribe(subscription)
@@ -54,10 +54,8 @@ private[amqp] class QueuePublisher(
         }
     }
 
-  def newShutdownListener(subscriber: Subscriber[_ >: Delivery]) = new ShutdownListener {
-    override def shutdownCompleted(cause: ShutdownSignalException) =
-      subscribers.single.transform(_ - subscriber)
-  }
+  def newShutdownListener(subscriber: Subscriber[_ >: Delivery]) =
+    () => subscribers.single.transform(_ - subscriber)
 
   override def toString = s"QueuePublisher(connection=$connection, queue=$queue, prefetch=$prefetch)"
 }
