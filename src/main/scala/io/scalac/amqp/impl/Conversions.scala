@@ -37,7 +37,11 @@ private object Conversions {
     factory.setNetworkRecoveryInterval(settings.recoveryInterval.toMillis)
 
     // enable SSL if needed
-    for(protocol ← settings.ssl) factory.useSslProtocol(protocol)
+    (settings.sslProtocol, settings.sslContext) match {
+      case (_, Some(context)) => factory.useSslProtocol(context)
+      case (Some(protocol), _) => factory.useSslProtocol(protocol)
+      case _ => ;
+    }
 
     factory
   }

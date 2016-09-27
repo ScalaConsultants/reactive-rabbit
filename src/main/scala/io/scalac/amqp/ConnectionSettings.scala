@@ -1,6 +1,7 @@
 package io.scalac.amqp
 
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
 
 import com.typesafe.config.Config
 import io.scalac.amqp.ConnectionSettings._
@@ -62,7 +63,7 @@ object ConnectionSettings {
     },
     automaticRecovery = config.getBoolean("amqp.automatic-recovery"),
     recoveryInterval = config.getMillisDuration("amqp.recovery-interval"),
-    ssl = config.getString("amqp.ssl") match {
+    sslProtocol = config.getString("amqp.ssl") match {
       case "disable" ⇒ None
       case protocol  ⇒ Some(protocol)
     }
@@ -108,7 +109,10 @@ final case class ConnectionSettings(
 
   /** Allows to use SSL for connecting to the broker.
     * Pass in the SSL protocol to use, e.g. "TLSv1" or "TLSv1.2" or none. */
-  ssl: Option[Protocol]) {
+  sslProtocol: Option[Protocol],
+
+  /** Allows for use of a custom SSL Context when connecting to the broker. */
+  sslContext: Option[SSLContext] = None) {
 
   heartbeat.foreach(interval ⇒
     require(interval >= HeartbeatMin && interval <= HeartbeatMax,
@@ -120,5 +124,5 @@ final case class ConnectionSettings(
 
   /** Returns a string representation of this. Password field is intentionally omitted. */
   override def toString = s"ConnectionSettings(addresses=$addresses, virtualHost=$virtualHost, username=$username, " +
-    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval, ssl=$ssl)"
+    s"heartbeat=$heartbeat, timeout=$timeout, recoveryInterval=$recoveryInterval, ssl=$sslProtocol)"
 }
