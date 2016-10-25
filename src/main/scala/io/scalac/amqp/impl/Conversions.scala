@@ -130,6 +130,9 @@ private object Conversions {
     // RabbitMQ extension: Queue Length Limit
     queue.xMaxLength.foreach(max ⇒ builder.put("x-max-length", max.asInstanceOf[Object]))
 
+    // RabbitMQ extension: Queue Size Limit in Bytes
+    queue.xMaxBytes.foreach(max ⇒ builder.put("x-max-length-bytes", max.asInstanceOf[Object]))
+
     // RabbitMQ extension: Dead Letter Exchange
     queue.xDeadLetterExchange.foreach { exchange ⇒
       builder.put("x-dead-letter-exchange", exchange.name)

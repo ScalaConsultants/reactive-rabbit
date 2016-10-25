@@ -42,6 +42,8 @@ object Queue {
   val XMaxLengthMin = 0L
   val XMaxLengthMax = 4294967295L
 
+  val XMaxBytesMin = 0L
+  val XMaxBytesMax = 4294967295L
 
   /** Dead letter exchanges (DLXs) are normal exchanges.
     * They can be any of the usual types and are declared as usual. */
@@ -117,7 +119,11 @@ final case class Queue(
     *
     * Dead letter exchanges (DLXs) are normal exchanges.
     * They can be any of the usual types and are declared as usual. */
-  xDeadLetterExchange: Option[XDeadLetterExchange] = None) {
+  xDeadLetterExchange: Option[XDeadLetterExchange] = None,
+
+  /** Maximum queue size in bytes can be set by supplying a value for this field. If both xMaxBytes
+    * and xMaxLength are provided, whichever limit is hit first will be enforced. */
+  xMaxBytes: Option[Long] = None) {
 
   require(name.length <= 255, "name.length > 255")
   require(!xMessageTtl.isFinite ||
@@ -128,4 +134,7 @@ final case class Queue(
   xMaxLength.foreach(xMaxLength ⇒
     require(xMaxLength >= XMaxLengthMin && xMaxLength <= XMaxLengthMax,
       s"xMaxLength < $XMaxLengthMin || xMaxLength > $XMaxLengthMax"))
+  xMaxBytes.foreach(xMaxBytes ⇒
+    require(xMaxBytes >= XMaxBytesMin && xMaxBytes <= XMaxBytesMax,
+      s"xMaxBytes < $XMaxBytesMin || xMaxBytes > $XMaxBytesMax"))
 }
