@@ -117,8 +117,8 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
       exchange.internal,
       Conversions.toExchangeArguments(exchange)))
 
-  override def consume(queue: String, prefetch: Int) =
-    new QueuePublisher(underlying, queue, prefetch)
+  override def consume(queue: String, prefetch: Int, exclusive: Boolean) =
+    new QueuePublisher(underlying, queue, prefetch, exclusive)
 
   override def publish(exchange: String, routingKey: String) =
     new Subscriber[Message] {

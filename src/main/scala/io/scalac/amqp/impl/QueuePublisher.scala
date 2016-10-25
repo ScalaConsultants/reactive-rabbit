@@ -19,7 +19,12 @@ private[amqp] class QueuePublisher(
   /** Number of unacknowledged messages in the flight. It's beneficial to have this number higher
     * than 1 due to improved throughput. Setting this number to high may increase memory usage -
     * depending on average message size and speed of subscribers. */
-  prefetch: Int = 20) extends Publisher[Delivery] {
+  prefetch: Int = 20,
+
+  /**
+    * If set to true, the consumer will be exclusive and only this consumer can access the queue.
+    */
+  exclusive: Boolean = false) extends Publisher[Delivery] {
 
   require(prefetch > 0, "prefetch <= 0")
 
@@ -38,7 +43,7 @@ private[amqp] class QueuePublisher(
             try {
               subscriber.onSubscribe(subscription)
               channel.basicQos(prefetch)
-              channel.basicConsume(queue, false, subscription)
+              channel.basicConsume(queue, false, "", false, exclusive, null, subscription)
             } catch {
               case NonFatal(exception) ⇒ subscriber.onError(exception)
             }

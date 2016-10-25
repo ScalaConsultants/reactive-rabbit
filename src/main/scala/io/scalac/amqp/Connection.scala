@@ -103,8 +103,9 @@ trait Connection {
    * @param queue Name of the consumed queue.
    * @param prefetch Number of unacknowledged messages in flight. It's beneficial to have this number higher
    *                 than 1 due to improved throughput. Setting this number to high may increase memory usage -
-   *                 depending on average message size and speed of subscribers. */
-  def consume(queue: String, prefetch: Int = 20): Publisher[Delivery]
+   *                 depending on average message size and speed of subscribers.
+   * @param exclusive If set to true, the consumer will be exclusive and ony this consumer can access the queue. */
+  def consume(queue: String, prefetch: Int = 20, exclusive: Boolean = false): Publisher[Delivery]
 
   /** Creates exchange `Subscriber` with fixed routing key.
     *
