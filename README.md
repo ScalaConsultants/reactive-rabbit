@@ -9,7 +9,7 @@ Reactive Streams: AMQP
 
 Available at Maven Central for Scala 2.11:
 
-    libraryDependencies += "io.scalac" %% "reactive-rabbit" % "1.1.2"
+    libraryDependencies += "io.scalac" %% "reactive-rabbit" % "1.1.3"
 
 Example
 ----
