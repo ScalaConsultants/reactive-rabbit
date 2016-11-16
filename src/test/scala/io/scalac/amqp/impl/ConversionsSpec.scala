@@ -2,6 +2,7 @@ package io.scalac.amqp.impl
 
 import javax.net.ssl.SSLContext
 
+import com.rabbitmq.client.AMQP.BasicProperties
 import io.scalac.amqp.{Address, ConnectionSettings}
 import org.scalatest.FlatSpec
 
@@ -29,5 +30,19 @@ class ConversionsSpec extends FlatSpec {
     val connectionFactory = Conversions.toConnectionFactory(settings)
 
     assert(connectionFactory.isSSL)
+  }
+
+
+  it should "handle valid content-type headers" in {
+    val props = new BasicProperties.Builder()
+      .contentType("application/json")
+      .build
+
+    val mediaType = Conversions
+      .toMessage(props, Array[Byte]())
+      .contentType
+      .get
+
+    assert(mediaType == "application/json")
   }
 }

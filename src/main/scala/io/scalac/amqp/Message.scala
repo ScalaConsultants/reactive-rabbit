@@ -1,6 +1,5 @@
 package io.scalac.amqp
 
-import com.google.common.net.MediaType
 import io.scalac.amqp.Message.{PriorityMax, PriorityMin}
 import java.time.ZonedDateTime
 
@@ -23,7 +22,7 @@ final case class Message(
     * the content-type SHOULD NOT be set, allowing the recipient to determine the actual type.
     * Where the section is known to be truly opaque binary data, the content-type SHOULD be set
     * to application/octet-stream. */
-  contentType: Option[MediaType] = None,
+  contentType: Option[String] = None,
 
   /** When present, describes additional content encodings applied to the application-data,
     * and thus what decoding mechanisms need to be applied in order to obtain the media-type
