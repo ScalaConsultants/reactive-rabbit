@@ -39,7 +39,7 @@ Source.fromPublisher(queue).map(_.message).runWith(Sink.fromSubscriber(exchange)
 
 API Docs
 ----
-Run `sbt doc` and open target/scala-2.11/index.html.
+Run `sbt doc` and open target/scala-2.12/index.html.
 
 Settings
 ----

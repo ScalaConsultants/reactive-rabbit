@@ -43,8 +43,8 @@ object ConnectionSettings {
   /** Builds settings from TypeSafe Config. */
   def apply(config: Config): ConnectionSettings = apply(
     addresses = {
-      import scala.collection.JavaConversions._
-      config.getConfigList("amqp.addresses").map(address ⇒
+      import scala.collection.JavaConverters._
+      config.getConfigList("amqp.addresses").asScala.map(address ⇒
         Address(
           host = address.getString("host"),
           port = address.getInt("port")

@@ -1,12 +1,13 @@
 package io.scalac.amqp.impl
 
 import java.io.IOException
+import java.util
 
 import com.rabbitmq.client.{Address, AlreadyClosedException, Channel}
 import io.scalac.amqp._
 import org.reactivestreams.{Subscriber, Subscription}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, blocking}
 
@@ -54,7 +55,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   override def exchangeBind(destination: String, source: String, routingKey: String,
                             arguments: Map[String, String]) =
-    future(onChannel(_.exchangeBind(destination, source, routingKey, arguments)))
+    future(onChannel(_.exchangeBind(destination, source, routingKey, arguments.asJava.asInstanceOf[util.Map[String, AnyRef]])))
       .map(_ ⇒ Exchange.BindOk())
 
   override def exchangeUnbind(destination: String, source: String, routingKey: String) =
@@ -101,7 +102,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   override def queueBind(queue: String, exchange: String, routingKey: String,
                          arguments: Map[String, String]) =
-    future(onChannel(_.queueBind(queue, exchange, routingKey, arguments)))
+    future(onChannel(_.queueBind(queue, exchange, routingKey, arguments.asJava.asInstanceOf[util.Map[String, AnyRef]])))
       .map(_ ⇒ Queue.BindOk())
 
   override def queueUnbind(queue: String, exchange: String, routingKey: String) =

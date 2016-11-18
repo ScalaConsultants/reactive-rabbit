@@ -3,5 +3,6 @@ services:
   - rabbitmq
 scala:
   - 2.11.8
+  - 2.12.0
 jdk:
   - oraclejdk8
