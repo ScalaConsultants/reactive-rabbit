@@ -23,6 +23,13 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
   val running = Ref(false)
   var closeRequested = Ref(false)
 
+  override def finalize(): Unit = {
+    try
+      closeChannel()
+    finally
+      super.finalize()
+  }
+
   override def handleCancel(consumerTag: String) = try {
     subscriber.onComplete()
   } catch {
@@ -87,7 +94,11 @@ private[amqp] class QueueSubscription(channel: Channel, queue: String, subscribe
 
   def closeChannel(): Unit = synchronized {
     if (closeRequested.single.compareAndSet(false, true) && channel.isOpen) {
-      channel.close()
+      try {
+        channel.close()
+      } catch {
+        case NonFatal(_) =>
+      }
     }
   }
 

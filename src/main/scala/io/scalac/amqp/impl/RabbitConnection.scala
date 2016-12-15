@@ -123,8 +123,7 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
 
   override def publish(exchange: String, routingKey: String) =
     new Subscriber[Message] {
-      val channel = underlying.createChannel()
-      val delegate = new ExchangeSubscriber(channel, exchange)
+      val delegate = new ExchangeSubscriber(underlying, exchange)
 
       override def onError(t: Throwable) = delegate.onError(t)
       override def onSubscribe(s: Subscription) = delegate.onSubscribe(s)
@@ -135,12 +134,12 @@ private[amqp] class RabbitConnection(settings: ConnectionSettings) extends Conne
           routingKey = routingKey,
           message = message))
 
-      override def toString = s"ExchangeSubscriber(channel=$channel, exchange=$exchange, routingKey=$routingKey)"
+      override def toString = s"ExchangeSubscriber(exchange=$exchange, routingKey=$routingKey)"
     }
 
   override def publish(exchange: String) =
     new ExchangeSubscriber(
-      channel = underlying.createChannel(),
+      connection = underlying,
       exchange = exchange)
 
   override def publishDirectly(queue: String) =
