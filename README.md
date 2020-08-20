@@ -75,3 +75,4 @@ Connection trait API has two groups of methods: to manage AMQP infrastructure (i
 `publish(exchange, routingKey)` - creates `Subscription` that takes stream of `Message` that will be sent to `exchange` with fixed `routingKey`.  
 `publish(exchange)` - creates `Subscription` for stream of `Routed` (tuple of `Message` and routing key).  
 
+Developed by [Scalac](https://scalac.io/?utm_source=scalac_github&utm_campaign=scalac1&utm_medium=web)
